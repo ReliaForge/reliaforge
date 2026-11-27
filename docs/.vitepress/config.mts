@@ -1,83 +1,59 @@
 import { defineConfig } from "vitepress"
 
 const siteUrl = "https://reliaforge.dev/"
-
-const englishSidebar = [
-  {
-    text: "Guide",
-    items: [
-      { text: "Getting started", link: "/guide/getting-started" },
-      { text: "Core concepts", link: "/guide/core-concepts" },
-      { text: "Architecture", link: "/guide/architecture" },
-      { text: "Develop a plugin", link: "/guide/plugin-development" },
-      { text: "Deploy the console", link: "/guide/deploying-console" },
-    ],
-  },
-  {
-    text: "Reference",
-    items: [
-      { text: "Security model", link: "/reference/security" },
-      { text: "Repositories", link: "/reference/repositories" },
-      { text: "Versions and API", link: "/reference/compatibility" },
-    ],
-  },
-  {
-    text: "Project",
-    items: [{ text: "Roadmap", link: "/project/roadmap" }],
-  },
-]
-
-const chineseSidebar = [
-  {
-    text: "指南",
-    items: [
-      { text: "快速开始", link: "/zh/guide/getting-started" },
-      { text: "核心概念", link: "/zh/guide/core-concepts" },
-      { text: "架构", link: "/zh/guide/architecture" },
-      { text: "开发插件", link: "/zh/guide/plugin-development" },
-      { text: "部署控制台", link: "/zh/guide/deploying-console" },
-    ],
-  },
-  {
-    text: "参考",
-    items: [
-      { text: "安全模型", link: "/zh/reference/security" },
-      { text: "仓库", link: "/zh/reference/repositories" },
-      { text: "版本与 API", link: "/zh/reference/compatibility" },
-    ],
-  },
-  {
-    text: "项目",
-    items: [{ text: "路线图", link: "/zh/project/roadmap" }],
-  },
-]
+const englishDescription =
+  "Plugin-based operations platform for Python APIs, shared services, and React console workspaces."
 
 export default defineConfig({
   lang: "en-US",
   title: "ReliaForge",
-  description: "A plugin-based operations platform for hosting and managing Python services.",
+  description: englishDescription,
   base: "/",
   locales: {
     root: {
       label: "English",
       lang: "en-US",
       title: "ReliaForge",
-      description: "A plugin-based operations platform for hosting and managing Python services.",
+      description: englishDescription,
     },
     zh: {
       label: "简体中文",
       lang: "zh-CN",
       title: "ReliaForge",
-      description: "将 Python 服务以插件形式接入、运行和管理的运维平台。",
+      description: "面向 SRE 团队的插件式运维平台，统一托管 Python 服务与 React 控制台工作区。",
       link: "/zh/",
       themeConfig: {
         nav: [
           { text: "指南", link: "/zh/guide/getting-started" },
           { text: "架构", link: "/zh/guide/architecture" },
+          { text: "仓库", link: "/zh/reference/repositories" },
           { text: "安全", link: "/zh/reference/security" },
-          { text: "在线演示", link: "https://demo.reliaforge.dev/#/zh/" },
+          { text: "在线演示", link: "https://demo.reliaforge.dev/?lang=zh" },
         ],
-        sidebar: chineseSidebar,
+        sidebar: [
+          {
+            text: "指南",
+            items: [
+              { text: "快速开始", link: "/zh/guide/getting-started" },
+              { text: "核心概念", link: "/zh/guide/core-concepts" },
+              { text: "架构", link: "/zh/guide/architecture" },
+              { text: "开发插件", link: "/zh/guide/plugin-development" },
+              { text: "部署控制台", link: "/zh/guide/deploying-console" },
+            ],
+          },
+          {
+            text: "参考",
+            items: [
+              { text: "安全模型", link: "/zh/reference/security" },
+              { text: "仓库", link: "/zh/reference/repositories" },
+              { text: "版本与 API", link: "/zh/reference/compatibility" },
+            ],
+          },
+          {
+            text: "项目",
+            items: [{ text: "路线图", link: "/zh/project/roadmap" }],
+          },
+        ],
         search: {
           provider: "local",
           options: {
@@ -135,11 +111,11 @@ export default defineConfig({
   cleanUrls: false,
   sitemap: { hostname: siteUrl },
   head: [
-    ["meta", { name: "theme-color", content: "#fbfbfa", media: "(prefers-color-scheme: light)" }],
-    ["meta", { name: "theme-color", content: "#0b0d0c", media: "(prefers-color-scheme: dark)" }],
+    ["meta", { name: "theme-color", content: "#f8f9fb", media: "(prefers-color-scheme: light)" }],
+    ["meta", { name: "theme-color", content: "#0b0c0e", media: "(prefers-color-scheme: dark)" }],
     ["meta", { property: "og:type", content: "website" }],
     ["meta", { property: "og:title", content: "ReliaForge" }],
-    ["meta", { property: "og:description", content: "A plugin-based operations platform for hosting and managing Python services." }],
+    ["meta", { property: "og:description", content: englishDescription }],
     ["meta", { property: "og:image", content: `${siteUrl}og-preview.png` }],
     ["meta", { name: "twitter:card", content: "summary_large_image" }],
     ["link", { rel: "icon", type: "image/png", href: "/mark.png" }],
@@ -150,13 +126,35 @@ export default defineConfig({
     nav: [
       { text: "Guide", link: "/guide/getting-started" },
       { text: "Architecture", link: "/guide/architecture" },
+      { text: "Repositories", link: "/reference/repositories" },
       { text: "Security", link: "/reference/security" },
       { text: "Demo", link: "https://demo.reliaforge.dev/" },
     ],
-    sidebar: englishSidebar,
-    socialLinks: [
-      { icon: "github", link: "https://github.com/SajoLuo/reliaforge" },
+    sidebar: [
+      {
+        text: "Guide",
+        items: [
+          { text: "Getting started", link: "/guide/getting-started" },
+          { text: "Core concepts", link: "/guide/core-concepts" },
+          { text: "Architecture", link: "/guide/architecture" },
+          { text: "Develop a plugin", link: "/guide/plugin-development" },
+          { text: "Deploy the console", link: "/guide/deploying-console" },
+        ],
+      },
+      {
+        text: "Reference",
+        items: [
+          { text: "Security model", link: "/reference/security" },
+          { text: "Repositories", link: "/reference/repositories" },
+          { text: "Versions and API", link: "/reference/compatibility" },
+        ],
+      },
+      {
+        text: "Project",
+        items: [{ text: "Roadmap", link: "/project/roadmap" }],
+      },
     ],
+    socialLinks: [{ icon: "github", link: "https://github.com/SajoLuo/reliaforge" }],
     search: { provider: "local" },
     i18nRouting: true,
     editLink: {

@@ -1,50 +1,38 @@
 # 架构
 
-ReliaForge 在一个后端进程中托管多个 Python 服务插件。平台负责加载、依赖、配置、认证和
-启停；插件实现具体服务和 API；可选的 React 控制台用于查看状态和管理插件。
+ReliaForge 在单个 Python 后端进程内托管多个运维插件，并配合统一的 React 控制台宿主运行。后端负责插件发现、依赖拓扑排序、配置结构校验、反向代理认证与生命周期编排；各插件负责自身的领域 API、共享服务以及可选的 ESM 控制台视图。
 
 ```text
-React console -> management API -> plugin manager
-                                       -> loads and starts plugins
-                                       -> stops plugins and reads health
-API clients   -> plugin API routes -> plugin service code
+Browser console -> /api/v1/*           -> management API & plugin manager
+                -> /api/v1/plugins/*   -> plugin HTTP, SSE, WebSocket, and ESM UI assets
+API clients     -> /api/v1/plugins/*   -> plugin FastAPI routers & shared services
 ```
 
-## 加载插件
+## 插件发现与前置校验
 
-导入插件代码之前，后端会先读取所有 `manifest.json`，检查 ID、版本、缺失依赖和循环依赖，
-再按依赖顺序导入有效插件。
+导入任何插件代码前，后端先从 `RELIAFORGE_PLUGIN_PATHS` 目录与已安装 Python 包的 `entry_points`（`reliaforge.plugins` 组）收集候选插件，按 `enabled_plugins` 与 `disabled_plugins` 过滤后逐一校验 `manifest.json`。平台会检查插件 ID、SemVer 范围、缺失的必选依赖及循环依赖，确认无误后再按拓扑顺序导入代码。
 
-`manifest.json` 或依赖关系有误时，后端无法启动。检查通过后，如果某个插件的代码无法加载，
-后端会记录错误并阻止依赖它的插件运行，无关插件和管理 API 仍然可用。
+清单格式错误或依赖图非法会直接阻止后端启动，避免带病运行。通过元数据校验后，若单个插件在代码导入或启动阶段抛出异常，后端会记录结构化错误并阻断其必选下游插件，其余无关插件与 `/api/v1` 管理接口保持正常服务。
 
-## 启动和停止插件
+## 生命周期、共享服务与事件
 
-插件管理器负责所有状态变化。每个插件都会拿到一个上下文，用来登记它创建的服务和事件订阅。
-插件的停止钩子负责释放客户端、后台任务等资源，初始化中途失败后也会执行。平台随后移除该
-插件注册的服务和事件订阅。
+插件管理器串行控制启动、停止和重启状态流转。每个插件获取独立作用域上下文，用于注册带类型的 Python 服务（`capabilities`）与进程内事件订阅。插件停止时先执行作者定义的清理钩子（即使初始化中途失败也会触发），释放外部连接与后台任务，再由平台统一回收其服务注册项。
 
-初始化和启动都有时间限制。健康检查只返回内存中的当前状态，不能修复或探测外部系统。事件只在
-当前进程中传递，不是持久任务队列。
+初始化与启动均受超时时间约束。健康检查接口只返回内存状态或缓存快照，不触发外部修复动作；进程内事件总线仅用于插件间轻量通知，不承担持久化任务队列职责。
 
-## API 与控制台
+## 控制台宿主与运行时前端
 
-后端提供存活、就绪、平台状态、插件详情、健康状态和启停操作。读取接口不会改变插件状态。
-调用插件 API 或执行启停操作前，后端都会验证操作者身份。
-
-控制台有两种数据来源：
+后端在统一认证保护下提供存活、就绪、平台状态、插件目录、配置结构、启停接口以及插件自身的 HTTP、SSE 与 WebSocket 路由。当插件声明 `frontend.ui_mode = "esm"` 时，控制台从 `/api/v1/plugins/{id}/ui/*` 动态加载前端模块，在独立的错误边界内共享宿主 React 实例与 `@reliaforge/plugin-sdk` 组件库。
 
 ```text
-Page -> hook -> API client -> HTTP backend
-                         \-> saved demo data
+Console host -> API client & runtime loader -> live ReliaForge backend
+                                            \-> saved demo dataset
 ```
 
-在线演示使用保存的数据，不提供写操作。正常部署则使用 HTTP 后端。
+公开在线演示使用预设静态数据并关闭写操作；实际部署环境连接实时后端接口。
 
-## 生产部署
+## 生产部署拓扑
 
-生产环境中，让控制台和后端通过能够验证用户身份的可信反向代理对外提供访问。尽量使用相同的
-协议、主机和端口；如果来源不同，还要配置允许浏览器访问的来源。管理密钥只保留在服务端。
+生产环境推荐在同源域名下通过具备身份认证能力的反向代理（如 Envoy/Cilium Gateway、Nginx、Caddy 或 Cloudflare Access）对外暴露服务。配置 `RELIAFORGE_CONSOLE_DIR` 即可由后端单进程同时提供控制台静态资源、`/api/v1` 接口、SSE 日志流与 WebSocket 终端，确保所有上游凭据和代理共享密钥仅保留在服务端。
 
-状态变化和故障处理详见后端的
-[架构文档](https://github.com/SajoLuo/reliaforge-backend/blob/main/docs/zh/architecture.md)。
+状态机流转与故障隔离细则详见后端仓库的[架构文档](https://github.com/SajoLuo/reliaforge-backend/blob/main/docs/zh/architecture.md)。

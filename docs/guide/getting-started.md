@@ -1,13 +1,13 @@
 # Getting started
 
-This guide takes you from a clean checkout to a running ReliaForge instance, two working example
-plugins, and a scaffold for your first plugin. If you only want to see the interface, open the
-[hosted demo](https://demo.reliaforge.dev/) instead.
+This guide takes you from a clean checkout to a running ReliaForge instance, two bundled example
+plugins, and a scaffold for your first plugin. To inspect the interface without installing Python or
+Node.js, open the [hosted demo](https://demo.reliaforge.dev/) instead.
 
 ## Requirements
 
 - Python 3.11 or newer for the backend;
-- Node.js 20 or newer and npm 10 or newer for frontend development;
+- Node.js 20 or newer and npm 10 or newer for frontend or ESM plugin UI builds;
 - Git.
 
 ## 1. Start the backend
@@ -40,9 +40,9 @@ curl http://127.0.0.1:8000/api/v1/plugins/demo/greeting
 curl http://127.0.0.1:8000/api/v1/plugins/runbook/preview
 ```
 
-The first two requests show backend status and loaded plugins. The other requests call the plugins'
-own services: `demo` returns a greeting, and `runbook` returns a text preview using that greeting.
-They demonstrate two services and a dependency; neither runs external commands or changes systems.
+The first two requests show backend status and loaded plugins. The next two call each plugin's own
+API: `demo` returns a greeting, and `runbook` builds a text preview from `demo`'s shared Python
+service. Neither runs external commands or modifies systems.
 
 ## 3. Create a plugin from the scaffold
 
@@ -60,8 +60,8 @@ $env:RELIAFORGE_PLUGIN_PATHS = "./local-plugins"
 reliaforge
 ```
 
-The command creates `local-plugins/sample_tool/`. The path variable points to `local-plugins`,
-the directory containing your plugins.
+The command creates `local-plugins/sample_tool/`. `RELIAFORGE_PLUGIN_PATHS` points to the parent
+directory containing your plugins.
 
 Keep this backend running and call the new plugin from the other terminal:
 
@@ -75,12 +75,12 @@ Expected response:
 {"message": "Generated plugin is running", "plugin_id": "sample_tool"}
 ```
 
-You now have a working plugin. Next, follow [Develop a plugin](./plugin-development.md) to add a
-function that looks up a service's owning team and an API that calls it.
+You now have a working plugin. Follow [Develop a plugin](./plugin-development.md) to add a team
+ownership lookup API or attach a console workspace.
 
-## 4. Add the console when you need it
+## 4. Add the console
 
-Open another terminal in the parent of `reliaforge-backend`, then run:
+Open another terminal in the parent directory of `reliaforge-backend`, then run:
 
 ```bash
 git clone https://github.com/SajoLuo/reliaforge-frontend.git
@@ -90,16 +90,17 @@ npm ci
 npm run dev
 ```
 
-Open `http://127.0.0.1:5530` to see the plugin list. Browser configuration is visible to visitors;
-keep API keys and proxy secrets in the backend or proxy.
+Open `http://127.0.0.1:5530` to inspect plugin health, lifecycle controls, and any runtime ESM
+plugin workspaces. Keep API keys and proxy secrets in the backend or reverse proxy rather than
+browser variables.
 
 ## 5. Choose your next step
 
-| Experience | Data source | Can start or stop plugins | Best for |
+| Experience | Data source | Can run operational actions | Best for |
 | --- | --- | --- | --- |
-| [Hosted demo](https://demo.reliaforge.dev/) | Saved example data | No | Looking around before installing anything |
-| Local development | Your local Python process | Yes, in development mode | Building and testing plugins |
-| Production deployment | Your team's backend | Yes, after authentication | Running the team's plugins |
+| [Hosted demo](https://demo.reliaforge.dev/) | Saved example data | No | Evaluating layout and navigation before installing |
+| Local development | Your local Python process | Yes, on loopback | Building and testing custom plugins |
+| Production deployment | Authenticated backend and [`reliaforge-plugins`](https://github.com/SajoLuo/reliaforge-plugins) | Yes, after proxy authentication | Operating Proxmox, Kubernetes, GitOps, and internal tools |
 
-Before a production deployment, read the [security model](../reference/security.md) and
-[console deployment](./deploying-console.md) guidance.
+Before deploying for a team, read the [security model](../reference/security.md) and
+[console deployment](./deploying-console.md) guides.

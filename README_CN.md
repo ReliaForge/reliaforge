@@ -2,15 +2,15 @@
 
 [English](README.md)
 
-ReliaForge 是插件式运维平台。把 Python 运维工具做成插件，交给后端运行。团队成员通过
-工具的 API 或作者提供的界面使用它。
+ReliaForge 是面向 SRE 与平台团队的插件式运维平台。将 Python 接口、共享服务与按需加载的 React 工作区封装为插件，在统一的后端与控制台中运行和管理。
 
-后端负责加载插件、检查插件间依赖和读取配置。可选控制台用于查看状态、启动、停止和重启插件。
+后端负责校验插件清单与 SemVer 依赖关系、统一认证 HTTP 与 WebSocket 请求，并编排插件的启动、停止与重启。插件既可以仅提供后端 API，也可以使用 `@reliaforge/plugin-sdk` 附带运行时控制台界面。
 
 - [文档](https://reliaforge.dev/zh/)
-- [只读在线演示](https://demo.reliaforge.dev/#/zh/)
+- [只读在线演示](https://demo.reliaforge.dev/?lang=zh)
 - [Python 后端](https://github.com/SajoLuo/reliaforge-backend)
-- [React 控制台](https://github.com/SajoLuo/reliaforge-frontend)
+- [React 控制台与插件 SDK](https://github.com/SajoLuo/reliaforge-frontend)
+- [官方基础设施插件套件](https://github.com/SajoLuo/reliaforge-plugins)
 
 本仓库包含项目网站和跨仓库共用的文档。
 

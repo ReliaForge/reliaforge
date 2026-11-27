@@ -1,26 +1,30 @@
 # Versions and API
 
-This page lists the version rules used by the current release.
+This page lists the version contracts enforced by the current release.
 
 ## Plugin API
 
-Set `api_version` to `"v1"` in `manifest.json`. The backend rejects other values before it imports
+Set `api_version` to `"v1"` in `manifest.json`. The backend rejects other values before importing
 the plugin's Python entry point.
 
 ## Plugin dependencies
 
-Each dependency contains a plugin ID and an accepted SemVer range. Before importing plugins, the
-backend checks for missing providers, incompatible versions, and dependency cycles.
+Each dependency entry specifies `id`, an accepted SemVer `version` range, and an optional
+`optional: true` flag. Before importing plugin code, the backend checks for missing required
+providers, incompatible versions, and dependency cycles.
 
-The provider plugin's SemVer describes the version of the services it publishes.
+The provider plugin's SemVer describes the contract of the Python services it registers. Consumers
+call `context.get_service(...)` for required providers or `context.try_get_service(...)` for
+optional providers.
 
-## Management API
+## Console and Plugin SDK
 
-The console uses `/api/v1`. When an API response changes, update the backend model and frontend
-parser together, then run the cross-repository API check.
+The console talks to `/api/v1` and loads runtime plugin bundles when `frontend.ui_mode` is set to
+`"esm"` in `manifest.json`. Build ESM plugin workspaces against `@reliaforge/plugin-sdk` `^1.1.0`
+so shared React globals and UI components match the host console.
 
 ## Settings and restart
 
 Plugin environment variables use the `RELIAFORGE_<PLUGIN_ID>_` prefix and `__` for nested fields.
-Restart reads settings again for the loaded plugin. Restart the backend process after changing
-Python source or `manifest.json`.
+Restarting a plugin re-reads its environment settings. Restart the backend process after changing
+Python code, frontend bundles, `manifest.json`, or `enabled_plugins` / `disabled_plugins`.

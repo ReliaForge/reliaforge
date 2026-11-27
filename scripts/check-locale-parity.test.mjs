@@ -83,7 +83,7 @@ hero:
   actions:
     - theme: brand
       text: 体验在线演示
-      link: https://demo.reliaforge.dev/#/zh/
+      link: https://demo.reliaforge.dev/?lang=zh
 heroPreview:
   src: /console-preview.png
   alt: 控制台预览

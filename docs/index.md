@@ -2,12 +2,11 @@
 layout: home
 
 hero:
-  name: A plugin-based operations platform
-  text: Your Python tools.<br>Run as plugins.
-  tagline: Turn your team's Python operations tools into plugins. ReliaForge loads them and reads their settings. Use the console to check their status and start or stop them.
+  text: Run your operations stack as plugins.
+  tagline: Package Python APIs, shared services, and React workspaces into plugins. ReliaForge validates dependencies, enforces authentication, and hosts them in one console.
   image:
     src: /console-preview.png
-    alt: ReliaForge console showing plugin status and health
+    alt: ReliaForge console overview showing Proxmox, Kubernetes, GitOps, observability, and service health
   actions:
     - theme: brand
       text: Try the demo
@@ -18,49 +17,132 @@ hero:
 
 heroPreview:
   src: /console-preview.png
-  alt: ReliaForge console showing plugin status and health
+  alt: ReliaForge console overview showing Proxmox, Kubernetes, GitOps, observability, and service health
   href: https://demo.reliaforge.dev/
   label: Open the read-only ReliaForge demo
 
 features:
-  - title: Start from a template
-    details: Generate a working plugin, add your Python code, and give your team an API they can call.
-  - title: Know what is running
-    details: See which plugins loaded, whether they are healthy, what they depend on, and which actions are currently available.
-  - title: Reuse services between plugins
-    details: Declare a dependency and use another plugin's shared service through a Python interface.
-  - title: Manage plugins in one place
-    details: Run several operations services in one Python backend and manage them through an optional console.
+  - title: Full-stack plugin contract
+    details: Ship FastAPI routes, shared Python services, and runtime ESM React workspaces from one plugin directory or Python package.
+  - title: Dependency-checked startup
+    details: Validate manifests and SemVer service dependencies before importing code, while keeping unrelated plugins online when one fails to load.
+  - title: Guarded operational actions
+    details: Authenticate HTTP and WebSocket requests through your proxy, confirm state-changing operations, and record structured audit trails.
+  - title: Single-process delivery
+    details: Discover plugins from search paths or Python entry points and serve the console, APIs, SSE log streams, and terminals from one container.
 ---
 
 <section class="home-section">
+<div class="arch-split">
+<div>
 
-<p class="section-kicker">WHY RELIAFORGE</p>
+## One contract from Python service to console workspace
 
-## Put your team's tools to work
+Keep infrastructure integrations modular without running a separate microservice and UI repo for every internal tool. Each plugin declares its dependencies, settings, routes, and optional console views in `manifest.json`.
 
-Your team might have a function that finds a service's owning team and a program that collects
-metrics. Package them as plugins to run and manage them in the same backend.
+<div class="arch-ledger">
+  <div class="arch-row">
+    <strong>Backend runtime</strong>
+    <span>Validates manifests, resolves plugin dependencies, enforces HTTP and WebSocket proxy authentication, and manages start, stop, and restart hooks.</span>
+  </div>
+  <div class="arch-row">
+    <strong>Plugin package</strong>
+    <span>Owns domain APIs under <code>/api/v1/plugins/{id}</code>, publishes typed Python services to peer plugins, and optionally bundles an ESM frontend module.</span>
+  </div>
+  <div class="arch-row">
+    <strong>Console and SDK</strong>
+    <span>Loads plugin workspaces and overview widgets at runtime with shared tables, drawers, log viewers, and terminal components from <code>@reliaforge/plugin-sdk</code>.</span>
+  </div>
+</div>
 
-Developers provide each tool's code and API. Teammates call that API or use an interface supplied
-by the author. The console shows which plugins are running and lets operators start or stop them.
+<p>Read the <a href="./guide/architecture.html">architecture overview</a> or follow <a href="./guide/plugin-development.html">Develop a plugin</a> to turn a Python function into an authenticated service.</p>
 
-<div class="boundary-grid">
-  <div class="boundary-card"><strong>Backend</strong>Loads plugins, reads their settings, checks their dependencies, and starts and stops them.</div>
-  <div class="boundary-card"><strong>Plugin</strong>Contains your tool's code and API, plus any setup and cleanup the tool needs.</div>
-  <div class="boundary-card"><strong>Console</strong>Shows plugin status and health, with buttons for the operations currently allowed.</div>
+</div>
+<div class="arch-code">
+
+```json
+{
+  "id": "kubernetes",
+  "name": "Kubernetes",
+  "version": "1.0.0",
+  "api_version": "v1",
+  "entrypoint": "plugin:Plugin",
+  "capabilities": [
+    "kubernetes.inventory",
+    "kubernetes.logs",
+    "kubernetes.actions"
+  ],
+  "dependencies": [
+    { "id": "ops_audit", "version": "^1.0.0", "optional": true }
+  ],
+  "frontend": {
+    "category": "Infrastructure",
+    "ui_mode": "esm"
+  }
+}
+```
+
+</div>
+</div>
+</section>
+
+<section class="home-section">
+
+## Operate core infrastructure out of the box
+
+Start with your own internal tools or deploy the official [`reliaforge-plugins`](https://github.com/SajoLuo/reliaforge-plugins) suite. Enable only the integrations your environment uses and keep unused plugins disabled.
+
+<div class="suite-grid">
+  <div class="suite-cell">
+    <strong>Infrastructure cockpit <code>infra_overview</code></strong>
+    <p>Correlates hypervisor nodes, cluster capacity, GitOps sync health, active alerts, and your service catalog on the home screen.</p>
+  </div>
+  <div class="suite-cell">
+    <strong>Proxmox VE <code>proxmox</code></strong>
+    <p>Inspects node RRD trends, storage pools, QEMU VMs, and LXC containers with allowlisted power controls and an interactive LXC terminal drawer.</p>
+  </div>
+  <div class="suite-cell">
+    <strong>Kubernetes <code>kubernetes</code></strong>
+    <p>Browses workloads, nodes, and events across namespaces, streams live Pod logs over SSE, opens container shells, and triggers rolling restarts.</p>
+  </div>
+  <div class="suite-cell">
+    <strong>Argo CD GitOps <code>gitops_argocd</code></strong>
+    <p>Tracks application sync status, deployed Git revisions, health states, and resource trees with guarded refresh and sync triggers.</p>
+  </div>
+  <div class="suite-cell">
+    <strong>Observability <code>observability</code></strong>
+    <p>Queries Prometheus metrics and Loki log streams side by side, inspects firing Alertmanager rules, and creates or expires alert silences.</p>
+  </div>
+  <div class="suite-cell">
+    <strong>Operations audit <code>ops_audit</code></strong>
+    <p>Provides a shared SQLite audit service to peer plugins so VM power changes, workload restarts, syncs, and silences leave a searchable record.</p>
+  </div>
 </div>
 
 </section>
 
-<section class="home-section home-demo">
+<section class="home-section">
+<div class="closing-split">
+<div>
 
-<p class="section-kicker">SEE IT FIRST</p>
+## Evaluate in the browser or run locally in minutes
 
-## Explore the console
+Inspect the [read-only online demo](https://demo.reliaforge.dev/) with preset data before installing anything. When you are ready to test plugin lifecycle controls or build your own integration, start the local backend in four commands.
 
-Browse two example plugins in the [online demo](https://demo.reliaforge.dev/). The data is preset,
-so you can explore the pages but cannot start or stop plugins. Follow the
-[local quick start](./guide/getting-started.md) to try those operations.
+<div class="closing-action">
+  <a class="cta-button" href="./guide/getting-started.html">Read the quick start</a>
+</div>
 
+</div>
+<div class="arch-code">
+
+```bash
+git clone https://github.com/SajoLuo/reliaforge-backend.git
+cd reliaforge-backend
+python -m venv .venv && source .venv/bin/activate
+python -m pip install -e ".[dev]" && reliaforge
+```
+
+</div>
+</div>
 </section>

@@ -1,55 +1,62 @@
 # Develop a plugin
 
-Start with a Python function your team needs, then give it an API through ReliaForge. The backend's
+Start with a Python function your team already uses, expose it as an authenticated FastAPI endpoint,
+and optionally attach a React workspace. The backend's
 [step-by-step tutorial](https://github.com/SajoLuo/reliaforge-backend/blob/main/docs/plugin-development.md)
-uses a function that looks up a service's owning team. It includes complete files you can copy.
+builds a service-ownership lookup API with copy-ready files.
 
 ## What you will build
 
-After following the tutorial, you can call:
+After completing the tutorial, you can query:
 
 ```bash
 curl "http://127.0.0.1:8000/api/v1/plugins/sample_tool/owner?service_name=payments"
 ```
 
-The response is:
+Response:
 
 ```json
 {"service": "payments", "team": "payments-ops"}
 ```
 
-The example uses two preset records so you can try it locally without connecting another system.
+The tutorial uses two preset records so you can verify routing and lifecycle behavior locally before
+connecting an external API or database.
 
 ## Which files do I change?
 
-First follow [Getting started](./getting-started.md) to generate `sample_tool`. Then:
+Generate `sample_tool` from [Getting started](./getting-started.md), then update:
 
 | Step | File or setting | What to do |
 | --- | --- | --- |
-| Add your function | `ownership.py` | Put the team lookup function here |
-| Add an API | `router.py` | Read the query parameter, call the function, and return JSON |
-| Load the plugin | `RELIAFORGE_PLUGIN_PATHS` | Point to the parent directory and restart the backend |
-| Share it with users | The plugin's `README.md` | Give them the URL, parameters, responses, and authentication instructions |
+| Add domain logic | `ownership.py` | Implement the service-to-team lookup function |
+| Expose HTTP routes | `router.py` | Validate query parameters, call the function, and return JSON |
+| Load locally | `RELIAFORGE_PLUGIN_PATHS` | Point to `./local-plugins` and restart `reliaforge` |
+| Add optional UI | `manifest.json` (`frontend`) | Bundle an ESM workspace with `@reliaforge/plugin-sdk` when operators need custom tables, drawers, or terminals |
 
-The generated plugin already handles startup and shutdown. You can keep those files for this
-example. See the [complete tutorial and runtime rules](https://github.com/SajoLuo/reliaforge-backend/blob/main/docs/plugin-development.md)
-for the code and for what changes when a tool owns clients or background tasks.
+The scaffolded `plugin.py` already wires startup and shutdown hooks. Read the
+[complete tutorial and runtime rules](https://github.com/SajoLuo/reliaforge-backend/blob/main/docs/plugin-development.md)
+when your plugin manages async HTTP clients, WebSockets, or background tasks.
 
-## How do I know it works?
+## Verify lifecycle behavior
 
-Check the successful lookup, an unknown service, and the endpoint after stopping the plugin. They
-should return HTTP `200`, `404`, and `503`. Starting it again should restore the successful lookup.
+Test three requests in order: a valid service lookup (`200`), an unknown service (`404`), and the
+same lookup while the plugin is stopped (`503`). Starting the plugin again restores `200` responses
+without restarting the backend process.
 
-In local development, open `http://127.0.0.1:8000/api/v1/docs` to find and try the new endpoint.
-The console shows the plugin's status and start and stop controls.
+During local development, inspect generated schemas at `http://127.0.0.1:8000/api/v1/docs` and test
+start, stop, and restart transitions from the console.
 
-## Share the plugin
+## Package and distribute
 
-Give the deployment maintainer the plugin directory, its Python dependency requirements, and a
-README. The maintainer installs those requirements, adds the directory to the backend's plugin
-search paths, and restarts the backend. The README should explain how users authenticate before
-calling the API in that deployment.
+You can ship plugins in two ways:
 
-The bundled [demo](https://github.com/SajoLuo/reliaforge-backend/tree/main/reliaforge/plugins/demo) and
-[runbook](https://github.com/SajoLuo/reliaforge-backend/tree/main/reliaforge/plugins/runbook) plugins
-also show how one plugin can call another plugin's shared Python service.
+- **Python package (recommended for reusable suites)**: declare an entry point under
+  `[project.entry-points."reliaforge.plugins"]` in `pyproject.toml` and install the package into the
+  backend environment. See [`reliaforge-plugins`](https://github.com/SajoLuo/reliaforge-plugins) for
+  full-stack Python + `@reliaforge/plugin-sdk` examples.
+- **Directory path**: copy the plugin directory onto the host, install its Python dependencies, and
+  include its parent path in `RELIAFORGE_PLUGIN_PATHS`.
+
+The bundled [demo](https://github.com/SajoLuo/reliaforge-backend/tree/main/reliaforge/plugins/demo)
+and [runbook](https://github.com/SajoLuo/reliaforge-backend/tree/main/reliaforge/plugins/runbook)
+plugins also show minimal service sharing between two plugins.

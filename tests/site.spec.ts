@@ -3,8 +3,8 @@ import { expect, test } from "@playwright/test"
 test("landing page exposes the project boundary and primary destinations", async ({ page }) => {
   await page.goto("./")
 
-  await expect(page.getByRole("heading", { name: /Your Python tools/, level: 1 })).toBeVisible()
-  await expect(page.getByText("Put your team's tools to work")).toBeVisible()
+  await expect(page.getByRole("heading", { name: /Run your operations stack as plugins\./, level: 1 })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "One contract from Python service to console workspace", level: 2 })).toBeVisible()
   await expect(page.getByRole("link", { name: "Try the demo" })).toHaveAttribute(
     "href",
     "https://demo.reliaforge.dev/",
@@ -18,18 +18,22 @@ test("landing page exposes the project boundary and primary destinations", async
     "href",
     "https://demo.reliaforge.dev/",
   )
-  await expect(page.getByRole("img", { name: "ReliaForge console showing plugin status and health" })).toBeVisible()
+  await expect(
+    page.getByRole("img", {
+      name: "ReliaForge console overview showing Proxmox, Kubernetes, GitOps, observability, and service health",
+    }),
+  ).toBeVisible()
 })
 
 test("Chinese landing page exposes equivalent localized destinations", async ({ page }) => {
   await page.goto("./zh/")
 
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN")
-  await expect(page.getByRole("heading", { name: /把运维工具/, level: 1 })).toBeVisible()
-  await expect(page.getByText("让团队用上你写的工具")).toBeVisible()
+  await expect(page.getByRole("heading", { name: /用插件构建统一的运维平台。/, level: 1 })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "一份契约贯通后端服务与控制台", level: 2 })).toBeVisible()
   await expect(page.getByRole("link", { name: "在线体验" })).toHaveAttribute(
     "href",
-    "https://demo.reliaforge.dev/#/zh/",
+    "https://demo.reliaforge.dev/?lang=zh",
   )
   await expect(page.getByRole("link", { name: "开始使用" })).toHaveAttribute(
     "href",
@@ -38,9 +42,13 @@ test("Chinese landing page exposes equivalent localized destinations", async ({ 
   await expect(page.locator(".VPHomeHero .actions a")).toHaveCount(2)
   await expect(page.getByRole("link", { name: "打开 ReliaForge 只读在线演示" })).toHaveAttribute(
     "href",
-    "https://demo.reliaforge.dev/#/zh/",
+    "https://demo.reliaforge.dev/?lang=zh",
   )
-  await expect(page.getByRole("img", { name: "ReliaForge 控制台，显示插件状态和健康情况" })).toBeVisible()
+  await expect(
+    page.getByRole("img", {
+      name: "ReliaForge 控制台总览，展示 Proxmox、Kubernetes、GitOps、可观测性与服务健康状态",
+    }),
+  ).toBeVisible()
 })
 
 test("guide navigation works from the custom-domain root", async ({ page }) => {

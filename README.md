@@ -2,17 +2,19 @@
 
 [简体中文](README_CN.md)
 
-ReliaForge is a plugin-based operations platform. Package your Python operations tools as
-plugins and let the backend run them. Teammates use each tool through its API or an interface
-provided by its author.
+ReliaForge is a plugin-based operations platform for SRE and platform teams. Package Python APIs,
+shared services, and runtime React workspaces as plugins, then run and govern them in one
+authenticated backend and console.
 
-The backend loads plugins, checks dependencies, and reads configuration. The optional console
-shows plugin status and lets you start, stop, and restart them.
+The backend validates manifests and SemVer dependencies, enforces HTTP and WebSocket proxy
+authentication, and manages plugin start, stop, and restart hooks. Plugins can ship domain APIs on
+their own or attach ESM console views built with `@reliaforge/plugin-sdk`.
 
 - [Documentation](https://reliaforge.dev/)
 - [Read-only demo](https://demo.reliaforge.dev/)
 - [Python backend](https://github.com/SajoLuo/reliaforge-backend)
-- [React console](https://github.com/SajoLuo/reliaforge-frontend)
+- [React console and Plugin SDK](https://github.com/SajoLuo/reliaforge-frontend)
+- [Official infrastructure plugins](https://github.com/SajoLuo/reliaforge-plugins)
 
 This repository contains the project website and shared documentation.
 
