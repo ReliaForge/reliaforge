@@ -10,7 +10,7 @@ their domain APIs, shared services, and workspace views. The platform currently 
 - unified HTTP and WebSocket proxy authentication with Origin CSRF checks;
 - runtime-loaded ESM React plugin workspaces and overview widgets powered by `@reliaforge/plugin-sdk`;
 - single-process static console hosting via `RELIAFORGE_CONSOLE_DIR` alongside standalone web deployment;
-- bundled example plugins, `reliaforge-scaffold`, and the six-plugin [`reliaforge-plugins`](https://github.com/SajoLuo/reliaforge-plugins) infrastructure suite.
+- bundled example plugins, `reliaforge-scaffold`, and the six-plugin [`reliaforge-plugins`](https://github.com/ReliaForge/reliaforge-plugins) infrastructure suite.
 
 ## Next priorities
 
@@ -21,7 +21,7 @@ their domain APIs, shared services, and workspace views. The platform currently 
 
 To discuss a concrete change, open an issue in the repository that owns it:
 
-- [backend issues](https://github.com/SajoLuo/reliaforge-backend/issues);
-- [frontend and SDK issues](https://github.com/SajoLuo/reliaforge-frontend/issues);
-- [official plugin suite issues](https://github.com/SajoLuo/reliaforge-plugins/issues);
-- [site and cross-project issues](https://github.com/SajoLuo/reliaforge/issues).
+- [backend issues](https://github.com/ReliaForge/reliaforge-backend/issues);
+- [frontend and SDK issues](https://github.com/ReliaForge/reliaforge-frontend/issues);
+- [official plugin suite issues](https://github.com/ReliaForge/reliaforge-plugins/issues);
+- [site and cross-project issues](https://github.com/ReliaForge/reliaforge/issues).

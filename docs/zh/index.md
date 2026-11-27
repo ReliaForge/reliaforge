@@ -90,7 +90,7 @@ features:
 
 ## 开箱即用的核心基础设施套件
 
-除了接入团队自研工具，也可以直接部署官方 [`reliaforge-plugins`](https://github.com/SajoLuo/reliaforge-plugins) 插件套件，按环境实际需求启用所需集成并禁用其余插件。
+除了接入团队自研工具，也可以直接部署官方 [`reliaforge-plugins`](https://github.com/ReliaForge/reliaforge-plugins) 插件套件，按环境实际需求启用所需集成并禁用其余插件。
 
 <div class="suite-grid">
   <div class="suite-cell">
@@ -137,7 +137,7 @@ features:
 <div class="arch-code">
 
 ```bash
-git clone https://github.com/SajoLuo/reliaforge-backend.git
+git clone https://github.com/ReliaForge/reliaforge-backend.git
 cd reliaforge-backend
 python -m venv .venv && source .venv/bin/activate
 python -m pip install -e ".[dev]" && reliaforge

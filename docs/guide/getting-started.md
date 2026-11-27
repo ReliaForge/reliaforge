@@ -15,7 +15,7 @@ Node.js, open the [hosted demo](https://demo.reliaforge.dev/) instead.
 Clone the backend and create an isolated environment:
 
 ```bash
-git clone https://github.com/SajoLuo/reliaforge-backend.git
+git clone https://github.com/ReliaForge/reliaforge-backend.git
 cd reliaforge-backend
 python -m venv .venv
 source .venv/bin/activate
@@ -83,7 +83,7 @@ ownership lookup API or attach a console workspace.
 Open another terminal in the parent directory of `reliaforge-backend`, then run:
 
 ```bash
-git clone https://github.com/SajoLuo/reliaforge-frontend.git
+git clone https://github.com/ReliaForge/reliaforge-frontend.git
 cd reliaforge-frontend
 cp .env.example .env
 npm ci
@@ -100,7 +100,7 @@ browser variables.
 | --- | --- | --- | --- |
 | [Hosted demo](https://demo.reliaforge.dev/) | Saved example data | No | Evaluating layout and navigation before installing |
 | Local development | Your local Python process | Yes, on loopback | Building and testing custom plugins |
-| Production deployment | Authenticated backend and [`reliaforge-plugins`](https://github.com/SajoLuo/reliaforge-plugins) | Yes, after proxy authentication | Operating Proxmox, Kubernetes, GitOps, and internal tools |
+| Production deployment | Authenticated backend and [`reliaforge-plugins`](https://github.com/ReliaForge/reliaforge-plugins) | Yes, after proxy authentication | Operating Proxmox, Kubernetes, GitOps, and internal tools |
 
 Before deploying for a team, read the [security model](../reference/security.md) and
 [console deployment](./deploying-console.md) guides.

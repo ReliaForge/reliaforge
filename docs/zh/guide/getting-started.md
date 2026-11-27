@@ -13,7 +13,7 @@
 克隆后端并创建隔离环境：
 
 ```bash
-git clone https://github.com/SajoLuo/reliaforge-backend.git
+git clone https://github.com/ReliaForge/reliaforge-backend.git
 cd reliaforge-backend
 python -m venv .venv
 source .venv/bin/activate
@@ -77,7 +77,7 @@ curl --fail http://127.0.0.1:8000/api/v1/plugins/sample_tool/message
 在 `reliaforge-backend` 的同级父目录中另开一个终端执行：
 
 ```bash
-git clone https://github.com/SajoLuo/reliaforge-frontend.git
+git clone https://github.com/ReliaForge/reliaforge-frontend.git
 cd reliaforge-frontend
 cp .env.example .env
 npm ci
@@ -92,6 +92,6 @@ npm run dev
 | --- | --- | --- | --- |
 | [在线演示](https://demo.reliaforge.dev/?lang=zh) | 预设示例数据 | 不能 | 安装前快速浏览界面布局与导航 |
 | 本地开发 | 本地 Python 进程 | 可以（仅限回环地址） | 编写和调试自定义插件 |
-| 生产部署 | 已认证后端与 [`reliaforge-plugins`](https://github.com/SajoLuo/reliaforge-plugins) | 可以（须通过代理认证） | 纳管 Proxmox、Kubernetes、GitOps 及团队内部工具 |
+| 生产部署 | 已认证后端与 [`reliaforge-plugins`](https://github.com/ReliaForge/reliaforge-plugins) | 可以（须通过代理认证） | 纳管 Proxmox、Kubernetes、GitOps 及团队内部工具 |
 
 进入生产部署前，请先阅读[安全模型](../reference/security.md)与[部署控制台](./deploying-console.md)。

@@ -57,5 +57,5 @@ built console assets directly alongside `/api/v1`, SSE log streams, and WebSocke
 upstream credentials and proxy secrets strictly on the server.
 
 See the backend's
-[architecture reference](https://github.com/SajoLuo/reliaforge-backend/blob/main/docs/architecture.md)
+[architecture reference](https://github.com/ReliaForge/reliaforge-backend/blob/main/docs/architecture.md)
 for state machine transitions and error recovery rules.

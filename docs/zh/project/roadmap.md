@@ -9,7 +9,7 @@ ReliaForge 持续演进面向运维插件的公共运行时与控制台宿主，
 - 统一的 HTTP 与 WebSocket 代理身份验证，配合 Origin 来源校验防御跨站请求；
 - 基于 `@reliaforge/plugin-sdk` 动态加载的 ESM React 插件工作区与首页概览卡片；
 - 支持通过 `RELIAFORGE_CONSOLE_DIR` 单进程托管静态控制台，也可独立部署静态站点；
-- 内置示例插件、`reliaforge-scaffold` 脚手架，以及包含六款插件的 [`reliaforge-plugins`](https://github.com/SajoLuo/reliaforge-plugins) 官方基础设施套件。
+- 内置示例插件、`reliaforge-scaffold` 脚手架，以及包含六款插件的 [`reliaforge-plugins`](https://github.com/ReliaForge/reliaforge-plugins) 官方基础设施套件。
 
 ## 下一步重点
 
@@ -20,7 +20,7 @@ ReliaForge 持续演进面向运维插件的公共运行时与控制台宿主，
 
 讨论具体改动时，请在负责对应代码的仓库中创建 Issue：
 
-- [后端 Issues](https://github.com/SajoLuo/reliaforge-backend/issues)；
-- [前端与 SDK Issues](https://github.com/SajoLuo/reliaforge-frontend/issues)；
-- [官方插件套件 Issues](https://github.com/SajoLuo/reliaforge-plugins/issues)；
-- [站点和跨项目 Issues](https://github.com/SajoLuo/reliaforge/issues)。
+- [后端 Issues](https://github.com/ReliaForge/reliaforge-backend/issues)；
+- [前端与 SDK Issues](https://github.com/ReliaForge/reliaforge-frontend/issues)；
+- [官方插件套件 Issues](https://github.com/ReliaForge/reliaforge-plugins/issues)；
+- [站点和跨项目 Issues](https://github.com/ReliaForge/reliaforge/issues)。

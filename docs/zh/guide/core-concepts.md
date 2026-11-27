@@ -38,4 +38,4 @@ ReliaForge 以插件形式运行 Python 运维服务与可选的 React 控制台
 - 平台发现与筛选：通过 `RELIAFORGE_PLUGIN_PATHS`、`RELIAFORGE_PLUGIN_ENTRY_POINTS`、`RELIAFORGE_ENABLED_PLUGINS` 和 `RELIAFORGE_DISABLED_PLUGINS` 控制插件搜索来源及实际启用的插件列表。
 - 插件业务参数：每个插件的 `PluginSettings` 类自动读取 `RELIAFORGE_<PLUGIN_ID>_*` 前缀的环境变量（如 `RELIAFORGE_SAMPLE_TOOL_MESSAGE`）。
 
-控制台仅展示配置项名称、类型与非敏感默认值，从不返回当前实际值或密钥内容。自定义配置定义方式详见后端仓库的[插件开发指南](https://github.com/SajoLuo/reliaforge-backend/blob/main/docs/zh/plugin-development.md)。
+控制台仅展示配置项名称、类型与非敏感默认值，从不返回当前实际值或密钥内容。自定义配置定义方式详见后端仓库的[插件开发指南](https://github.com/ReliaForge/reliaforge-backend/blob/main/docs/zh/plugin-development.md)。

@@ -16,7 +16,7 @@ RELIAFORGE_CONSOLE_DIR=/srv/reliaforge/console reliaforge
 
 When `RELIAFORGE_CONSOLE_DIR` points to the compiled `dist/` folder, one backend container serves
 the SPA routes, `/api/v1` endpoints, runtime plugin UI bundles, SSE log streams, and WebSocket
-terminals together. See [`reliaforge-plugins`](https://github.com/SajoLuo/reliaforge-plugins)
+terminals together. See [`reliaforge-plugins`](https://github.com/ReliaForge/reliaforge-plugins)
 (`deploy/Dockerfile`) for a multi-stage container build combining backend, console, and plugins.
 
 ## Separate static web server
@@ -57,4 +57,4 @@ trusted proxy CIDRs that also present the shared proxy secret, and checks `Origi
 browser mutations and WebSockets. Incomplete production settings prevent startup.
 
 Review the [security model](../reference/security.md) before exposing a deployment. Full frontend
-and SDK scripts live in [`reliaforge-frontend`](https://github.com/SajoLuo/reliaforge-frontend).
+and SDK scripts live in [`reliaforge-frontend`](https://github.com/ReliaForge/reliaforge-frontend).

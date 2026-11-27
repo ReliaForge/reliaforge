@@ -14,8 +14,8 @@ function makeDocs() {
 
 test("accepts complete locale trees with translated prose and identical technical structure", () => {
   const root = makeDocs()
-  const english = "# Guide\n\n## Run\n\n```bash\nnpm run build\n```\n\n[Source](https://github.com/SajoLuo/reliaforge)\n"
-  const chinese = "# 指南\n\n## 运行\n\n```bash\nnpm run build\n```\n\n[源码](https://github.com/SajoLuo/reliaforge)\n"
+  const english = "# Guide\n\n## Run\n\n```bash\nnpm run build\n```\n\n[Source](https://github.com/ReliaForge/reliaforge)\n"
+  const chinese = "# 指南\n\n## 运行\n\n```bash\nnpm run build\n```\n\n[源码](https://github.com/ReliaForge/reliaforge)\n"
   fs.writeFileSync(path.join(root, "guide", "start.md"), english)
   fs.writeFileSync(path.join(root, "zh", "guide", "start.md"), chinese)
 
@@ -24,7 +24,7 @@ test("accepts complete locale trees with translated prose and identical technica
 
 test("accepts corresponding repository doc languages while detecting a different destination", () => {
   const root = makeDocs()
-  const prefix = "https://github.com/SajoLuo/reliaforge-backend/blob/main/docs/"
+  const prefix = "https://github.com/ReliaForge/reliaforge-backend/blob/main/docs/"
   fs.writeFileSync(path.join(root, "guide", "start.md"), `# Guide\n\n[Guide](${prefix}plugin-development.md)\n`)
   const chinesePath = path.join(root, "zh", "guide", "start.md")
   fs.writeFileSync(chinesePath, `# 指南\n\n[指南](${prefix}zh/plugin-development.md)\n`)

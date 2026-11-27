@@ -90,7 +90,7 @@ Keep infrastructure integrations modular without running a separate microservice
 
 ## Operate core infrastructure out of the box
 
-Start with your own internal tools or deploy the official [`reliaforge-plugins`](https://github.com/SajoLuo/reliaforge-plugins) suite. Enable only the integrations your environment uses and keep unused plugins disabled.
+Start with your own internal tools or deploy the official [`reliaforge-plugins`](https://github.com/ReliaForge/reliaforge-plugins) suite. Enable only the integrations your environment uses and keep unused plugins disabled.
 
 <div class="suite-grid">
   <div class="suite-cell">
@@ -137,7 +137,7 @@ Inspect the [read-only online demo](https://demo.reliaforge.dev/) with preset da
 <div class="arch-code">
 
 ```bash
-git clone https://github.com/SajoLuo/reliaforge-backend.git
+git clone https://github.com/ReliaForge/reliaforge-backend.git
 cd reliaforge-backend
 python -m venv .venv && source .venv/bin/activate
 python -m pip install -e ".[dev]" && reliaforge

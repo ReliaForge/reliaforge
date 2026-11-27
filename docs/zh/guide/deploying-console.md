@@ -11,7 +11,7 @@ npm ci && npm run build
 RELIAFORGE_CONSOLE_DIR=/srv/reliaforge/console reliaforge
 ```
 
-将 `RELIAFORGE_CONSOLE_DIR` 指向构建生成的 `dist/` 目录后，单个后端容器即可同时提供前端路由、`/api/v1` 接口、插件前端 ESM 资源、SSE 实时日志流与 WebSocket 终端。完整的多阶段镜像构建示例可参考 [`reliaforge-plugins`](https://github.com/SajoLuo/reliaforge-plugins) 中的 `deploy/Dockerfile`。
+将 `RELIAFORGE_CONSOLE_DIR` 指向构建生成的 `dist/` 目录后，单个后端容器即可同时提供前端路由、`/api/v1` 接口、插件前端 ESM 资源、SSE 实时日志流与 WebSocket 终端。完整的多阶段镜像构建示例可参考 [`reliaforge-plugins`](https://github.com/ReliaForge/reliaforge-plugins) 中的 `deploy/Dockerfile`。
 
 ## 独立静态服务器部署
 
@@ -43,4 +43,4 @@ npm run build:demo
 
 启用 `proxy` 代理认证模式时，后端仅接受来自可信代理网段且携带正确代理共享密钥的操作者身份请求头，并对浏览器变更请求与 WebSocket 升级执行 `Origin` 校验。生产配置缺失时后端会直接拒绝启动。
 
-对外暴露控制台前请先核对[安全模型](../reference/security.md)。前端与 SDK 的完整构建测试命令详见 [`reliaforge-frontend`](https://github.com/SajoLuo/reliaforge-frontend)。
+对外暴露控制台前请先核对[安全模型](../reference/security.md)。前端与 SDK 的完整构建测试命令详见 [`reliaforge-frontend`](https://github.com/ReliaForge/reliaforge-frontend)。

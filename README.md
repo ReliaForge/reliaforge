@@ -12,9 +12,9 @@ their own or attach ESM console views built with `@reliaforge/plugin-sdk`.
 
 - [Documentation](https://reliaforge.dev/)
 - [Read-only demo](https://demo.reliaforge.dev/)
-- [Python backend](https://github.com/SajoLuo/reliaforge-backend)
-- [React console and Plugin SDK](https://github.com/SajoLuo/reliaforge-frontend)
-- [Official infrastructure plugins](https://github.com/SajoLuo/reliaforge-plugins)
+- [Python backend](https://github.com/ReliaForge/reliaforge-backend)
+- [React console and Plugin SDK](https://github.com/ReliaForge/reliaforge-frontend)
+- [Official infrastructure plugins](https://github.com/ReliaForge/reliaforge-plugins)
 
 This repository contains the project website and shared documentation.
 

@@ -59,5 +59,5 @@ Configure plugins through environment variables before starting the backend:
 
 The console displays field names, types, and non-secret defaults, never live values or secrets. See
 the backend's
-[plugin development guide](https://github.com/SajoLuo/reliaforge-backend/blob/main/docs/plugin-development.md)
+[plugin development guide](https://github.com/ReliaForge/reliaforge-backend/blob/main/docs/plugin-development.md)
 when defining settings for your own plugin.

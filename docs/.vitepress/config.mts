@@ -81,7 +81,7 @@ export default defineConfig({
           },
         },
         editLink: {
-          pattern: "https://github.com/SajoLuo/reliaforge/edit/main/docs/:path",
+          pattern: "https://github.com/ReliaForge/reliaforge/edit/main/docs/:path",
           text: "在 GitHub 上编辑此页",
         },
         footer: {
@@ -154,11 +154,11 @@ export default defineConfig({
         items: [{ text: "Roadmap", link: "/project/roadmap" }],
       },
     ],
-    socialLinks: [{ icon: "github", link: "https://github.com/SajoLuo/reliaforge" }],
+    socialLinks: [{ icon: "github", link: "https://github.com/ReliaForge/reliaforge" }],
     search: { provider: "local" },
     i18nRouting: true,
     editLink: {
-      pattern: "https://github.com/SajoLuo/reliaforge/edit/main/docs/:path",
+      pattern: "https://github.com/ReliaForge/reliaforge/edit/main/docs/:path",
       text: "Edit this page on GitHub",
     },
     footer: {

@@ -35,4 +35,4 @@ Console host -> API client & runtime loader -> live ReliaForge backend
 
 生产环境推荐在同源域名下通过具备身份认证能力的反向代理（如 Envoy/Cilium Gateway、Nginx、Caddy 或 Cloudflare Access）对外暴露服务。配置 `RELIAFORGE_CONSOLE_DIR` 即可由后端单进程同时提供控制台静态资源、`/api/v1` 接口、SSE 日志流与 WebSocket 终端，确保所有上游凭据和代理共享密钥仅保留在服务端。
 
-状态机流转与故障隔离细则详见后端仓库的[架构文档](https://github.com/SajoLuo/reliaforge-backend/blob/main/docs/zh/architecture.md)。
+状态机流转与故障隔离细则详见后端仓库的[架构文档](https://github.com/ReliaForge/reliaforge-backend/blob/main/docs/zh/architecture.md)。

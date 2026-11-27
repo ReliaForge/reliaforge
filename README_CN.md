@@ -8,9 +8,9 @@ ReliaForge 是面向 SRE 与平台团队的插件式运维平台。将 Python �
 
 - [文档](https://reliaforge.dev/zh/)
 - [只读在线演示](https://demo.reliaforge.dev/?lang=zh)
-- [Python 后端](https://github.com/SajoLuo/reliaforge-backend)
-- [React 控制台与插件 SDK](https://github.com/SajoLuo/reliaforge-frontend)
-- [官方基础设施插件套件](https://github.com/SajoLuo/reliaforge-plugins)
+- [Python 后端](https://github.com/ReliaForge/reliaforge-backend)
+- [React 控制台与插件 SDK](https://github.com/ReliaForge/reliaforge-frontend)
+- [官方基础设施插件套件](https://github.com/ReliaForge/reliaforge-plugins)
 
 本仓库包含项目网站和跨仓库共用的文档。
 

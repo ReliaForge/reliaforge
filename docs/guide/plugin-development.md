@@ -2,7 +2,7 @@
 
 Start with a Python function your team already uses, expose it as an authenticated FastAPI endpoint,
 and optionally attach a React workspace. The backend's
-[step-by-step tutorial](https://github.com/SajoLuo/reliaforge-backend/blob/main/docs/plugin-development.md)
+[step-by-step tutorial](https://github.com/ReliaForge/reliaforge-backend/blob/main/docs/plugin-development.md)
 builds a service-ownership lookup API with copy-ready files.
 
 ## What you will build
@@ -34,7 +34,7 @@ Generate `sample_tool` from [Getting started](./getting-started.md), then update
 | Add optional UI | `manifest.json` (`frontend`) | Bundle an ESM workspace with `@reliaforge/plugin-sdk` when operators need custom tables, drawers, or terminals |
 
 The scaffolded `plugin.py` already wires startup and shutdown hooks. Read the
-[complete tutorial and runtime rules](https://github.com/SajoLuo/reliaforge-backend/blob/main/docs/plugin-development.md)
+[complete tutorial and runtime rules](https://github.com/ReliaForge/reliaforge-backend/blob/main/docs/plugin-development.md)
 when your plugin manages async HTTP clients, WebSockets, or background tasks.
 
 ## Verify lifecycle behavior
@@ -52,11 +52,11 @@ You can ship plugins in two ways:
 
 - **Python package (recommended for reusable suites)**: declare an entry point under
   `[project.entry-points."reliaforge.plugins"]` in `pyproject.toml` and install the package into the
-  backend environment. See [`reliaforge-plugins`](https://github.com/SajoLuo/reliaforge-plugins) for
+  backend environment. See [`reliaforge-plugins`](https://github.com/ReliaForge/reliaforge-plugins) for
   full-stack Python + `@reliaforge/plugin-sdk` examples.
 - **Directory path**: copy the plugin directory onto the host, install its Python dependencies, and
   include its parent path in `RELIAFORGE_PLUGIN_PATHS`.
 
-The bundled [demo](https://github.com/SajoLuo/reliaforge-backend/tree/main/reliaforge/plugins/demo)
-and [runbook](https://github.com/SajoLuo/reliaforge-backend/tree/main/reliaforge/plugins/runbook)
+The bundled [demo](https://github.com/ReliaForge/reliaforge-backend/tree/main/reliaforge/plugins/demo)
+and [runbook](https://github.com/ReliaForge/reliaforge-backend/tree/main/reliaforge/plugins/runbook)
 plugins also show minimal service sharing between two plugins.
