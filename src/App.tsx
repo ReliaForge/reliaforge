@@ -251,27 +251,31 @@ export function App() {
           </div>
         </section>
 
-        {/* Section 1: 2 a.m. Ops Story + Interactive Request-to-Audit Visualizer */}
+        {/* Section 1: Read-Only + Guarded Writes + Request-to-Audit Visualizer */}
         <section className="border-b border-hairline py-20 sm:py-24">
           <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-16">
             <Reveal>
               <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
                 {t.opsStory.heading}
               </h2>
-              <p className="mt-5 max-w-[60ch] text-[15px] leading-[1.7] text-muted">
+              <p className="mt-5 max-w-[58ch] text-[15px] leading-[1.7] text-muted">
                 {t.opsStory.lead}
               </p>
 
-              <div className="mt-8 border-b border-hairline">
+              <ul className="mt-8 list-none border-b border-hairline p-0">
                 {t.opsStory.rails.map((rail) => (
-                  <div key={rail.title} className="border-t border-hairline py-5">
-                    <div className="text-[15px] font-semibold leading-[1.5] text-ink">
-                      {rail.title}
-                    </div>
-                    <p className="mt-1.5 text-[15px] leading-[1.7] text-muted">{rail.detail}</p>
-                  </div>
+                  <li
+                    key={rail}
+                    className="flex items-start gap-3 border-t border-hairline py-4 text-[15px] leading-[1.65] text-ink"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-signal"
+                    />
+                    <span>{rail}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </Reveal>
 
             <Reveal delayMs={90}>
@@ -287,13 +291,10 @@ export function App() {
         <section id="plugins" className="scroll-mt-20 border-b border-hairline py-20 sm:py-24">
           <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
             <Reveal>
-              <div className="flex flex-wrap items-end justify-between gap-6">
-                <div className="max-w-[680px]">
-                  <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
-                    {t.suite.heading}
-                  </h2>
-                  <p className="mt-4 text-[15px] leading-[1.7] text-muted">{t.suite.lead}</p>
-                </div>
+              <div className="flex flex-wrap items-baseline justify-between gap-6">
+                <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
+                  {t.suite.heading}
+                </h2>
                 <a
                   href="https://github.com/ReliaForge/reliaforge-plugins"
                   target="_blank"
@@ -323,7 +324,7 @@ export function App() {
                         </span>
                         <span className="font-mono text-[13px] text-subtle">{plugin.id}</span>
                       </div>
-                      <p className="mt-3 text-[15px] leading-[1.7] text-muted">{plugin.summary}</p>
+                      <p className="mt-2.5 text-[15px] leading-[1.65] text-muted">{plugin.summary}</p>
                     </div>
 
                     {plugin.viewId ? (
@@ -357,20 +358,24 @@ export function App() {
               <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
                 {t.byo.heading}
               </h2>
-              <p className="mt-5 max-w-[60ch] text-[15px] leading-[1.7] text-muted">
+              <p className="mt-5 max-w-[58ch] text-[15px] leading-[1.7] text-muted">
                 {t.byo.lead}
               </p>
 
-              <div className="mt-8 border-b border-hairline">
+              <ul className="mt-8 list-none border-b border-hairline p-0">
                 {t.byo.points.map((point) => (
-                  <div key={point.title} className="border-t border-hairline py-5">
-                    <div className="text-[15px] font-semibold leading-[1.5] text-ink">
-                      {point.title}
-                    </div>
-                    <p className="mt-1.5 text-[15px] leading-[1.7] text-muted">{point.detail}</p>
-                  </div>
+                  <li
+                    key={point}
+                    className="flex items-start gap-3 border-t border-hairline py-4 text-[15px] leading-[1.65] text-ink"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-signal"
+                    />
+                    <span>{point}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
 
               <div className="mt-6">
                 <a
@@ -403,20 +408,24 @@ export function App() {
               <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
                 {t.deploy.heading}
               </h2>
-              <p className="mt-5 max-w-[60ch] text-[15px] leading-[1.7] text-muted">
+              <p className="mt-5 max-w-[58ch] text-[15px] leading-[1.7] text-muted">
                 {t.deploy.lead}
               </p>
 
-              <div className="mt-8 border-b border-hairline">
+              <ul className="mt-8 list-none border-b border-hairline p-0">
                 {t.deploy.facts.map((fact) => (
-                  <div key={fact.title} className="border-t border-hairline py-5">
-                    <div className="text-[15px] font-semibold leading-[1.5] text-ink">
-                      {fact.title}
-                    </div>
-                    <p className="mt-1.5 text-[15px] leading-[1.7] text-muted">{fact.detail}</p>
-                  </div>
+                  <li
+                    key={fact}
+                    className="flex items-start gap-3 border-t border-hairline py-4 text-[15px] leading-[1.65] text-ink"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-signal"
+                    />
+                    <span>{fact}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </Reveal>
 
             <Reveal delayMs={90}>
@@ -430,15 +439,12 @@ export function App() {
         </section>
 
         {/* Closing Action Stage */}
-        <section className="py-20 sm:py-24">
+        <section className="py-16 sm:py-20">
           <Reveal>
-            <div className="mx-auto flex max-w-[1280px] flex-col items-start justify-between gap-8 px-5 sm:px-8 md:flex-row md:items-center">
-              <div className="max-w-[640px]">
-                <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
-                  {t.closing.heading}
-                </h2>
-                <p className="mt-4 text-[15px] leading-[1.7] text-muted">{t.closing.lead}</p>
-              </div>
+            <div className="mx-auto flex max-w-[1280px] flex-col items-start justify-between gap-6 px-5 sm:px-8 md:flex-row md:items-center">
+              <h2 className="m-0 text-[clamp(1.5rem,2.6vw,2.2rem)] font-bold leading-[1.16] tracking-[-0.035em] text-ink [text-wrap:balance]">
+                {t.closing.heading}
+              </h2>
               <a
                 href={t.nav.demoUrl}
                 target="_blank"

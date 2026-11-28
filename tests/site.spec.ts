@@ -6,14 +6,17 @@ test("English landing page switches interactive console views, themes, action tr
   await expect(page.locator("html")).toHaveAttribute("lang", "en-US")
   await expect(page.locator("html")).toHaveClass(/dark/)
   await expect(
-    page.getByRole("heading", { name: "One console for your servers, clusters, and scripts.", level: 1 }),
+    page.getByRole("heading", {
+      name: "Self-hosted console for your infrastructure and Python ops tools.",
+      level: 1,
+    }),
   ).toBeVisible()
 
-  await expect(page.getByRole("link", { name: "Try live demo" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Live demo", exact: true })).toHaveAttribute(
     "href",
     "https://demo.reliaforge.dev/",
   )
-  await expect(page.getByRole("link", { name: "Read the docs" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Documentation", exact: true })).toHaveAttribute(
     "href",
     "https://docs.reliaforge.dev/",
   )
@@ -29,10 +32,10 @@ test("English landing page switches interactive console views, themes, action tr
   await expect(page.locator("html")).not.toHaveClass(/dark/)
   await expect(proxmoxImg).toHaveAttribute("src", "/views/view-proxmox-light.png")
 
-  // Switch interactive 2 a.m. safety trace scenario and replay
-  await page.getByRole("tab", { name: "Open LXC Shell" }).click()
+  // Switch interactive safety trace scenario and replay
+  await page.getByRole("tab", { name: "LXC shell" }).click()
   await expect(page.getByText(/WS \/api\/v1\/plugins\/proxmox/)).toBeVisible()
-  await page.getByRole("button", { name: "Replay trace" }).click()
+  await page.getByRole("button", { name: "Replay" }).click()
   await expect(page.getByText(/ops_audit -> actor=oncall/)).toBeVisible()
 
   // Switch BYO Python code tab
@@ -46,13 +49,13 @@ test("Chinese landing page renders localized copy and light mode cleanly", async
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN")
   await expect(page.locator("html")).not.toHaveClass(/dark/)
   await expect(
-    page.getByRole("heading", { name: "一个控制台，管完集群和你的脚本。", level: 1 }),
+    page.getByRole("heading", { name: "自托管的基础设施与运维工具台。", level: 1 }),
   ).toBeVisible()
-  await expect(page.getByRole("link", { name: "在线体验", exact: true })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "在线演示", exact: true }).first()).toHaveAttribute(
     "href",
     "https://demo.reliaforge.dev/?lang=zh",
   )
-  await expect(page.getByRole("link", { name: "阅读文档" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "阅读文档", exact: true })).toHaveAttribute(
     "href",
     "https://docs.reliaforge.dev/zh/",
   )
@@ -67,7 +70,7 @@ test("language and theme switchers work without horizontal overflow", async ({ p
   await page.getByRole("radio", { name: "中文" }).click()
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN")
   await expect(
-    page.getByRole("heading", { name: "一个控制台，管完集群和你的脚本。", level: 1 }),
+    page.getByRole("heading", { name: "自托管的基础设施与运维工具台。", level: 1 }),
   ).toBeVisible()
 
   await page.getByTestId("theme-toggle").click()

@@ -1,19 +1,17 @@
-# ReliaForge Website
+# ReliaForge website
 
 [简体中文](README_CN.md)
 
-This repository builds the product landing page published at [reliaforge.dev](https://reliaforge.dev/).
-Full SRE and developer documentation lives in
-[`reliaforge-docs`](https://github.com/ReliaForge/reliaforge-docs) ([docs.reliaforge.dev](https://docs.reliaforge.dev/)).
+Source for [reliaforge.dev](https://reliaforge.dev/). Documentation lives in [`reliaforge-docs`](https://github.com/ReliaForge/reliaforge-docs) ([docs.reliaforge.dev](https://docs.reliaforge.dev/)).
 
-- [Product website](https://reliaforge.dev/)
-- [Documentation](https://docs.reliaforge.dev/)
-- [Read-only demo](https://demo.reliaforge.dev/)
-- [Python backend](https://github.com/ReliaForge/reliaforge-backend)
-- [React console and Plugin SDK](https://github.com/ReliaForge/reliaforge-frontend)
-- [Official infrastructure plugins](https://github.com/ReliaForge/reliaforge-plugins)
+- [reliaforge.dev](https://reliaforge.dev/)
+- [docs.reliaforge.dev](https://docs.reliaforge.dev/)
+- [demo.reliaforge.dev](https://demo.reliaforge.dev/)
+- [`reliaforge-backend`](https://github.com/ReliaForge/reliaforge-backend)
+- [`reliaforge-frontend`](https://github.com/ReliaForge/reliaforge-frontend)
+- [`reliaforge-plugins`](https://github.com/ReliaForge/reliaforge-plugins)
 
-## Run locally
+## Local dev
 
 Requires Node.js 22.12+ and npm 10+.
 
@@ -22,7 +20,7 @@ npm ci
 npm run dev
 ```
 
-## Verify a change
+## Checks
 
 ```bash
 npm run typecheck

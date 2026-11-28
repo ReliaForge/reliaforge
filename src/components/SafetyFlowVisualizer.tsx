@@ -154,7 +154,7 @@ export function SafetyFlowVisualizer({ scenarios, replayLabel }: SafetyFlowVisua
                 </span>
 
                 <div className="flex items-baseline justify-between gap-3">
-                  <div className="text-[15px] font-semibold leading-[1.4] text-ink">
+                  <div className="text-[14px] font-semibold leading-[1.4] text-ink">
                     {step.stage}
                   </div>
                   <span
@@ -165,9 +165,8 @@ export function SafetyFlowVisualizer({ scenarios, replayLabel }: SafetyFlowVisua
                     {step.latencyMs}ms
                   </span>
                 </div>
-                <p className="mt-1 text-[15px] leading-[1.6] text-muted">{step.detail}</p>
                 <div
-                  className={`mt-2 overflow-x-auto rounded-[7px] border bg-code-bg px-3 py-2 font-mono text-[13px] leading-[1.5] transition-colors duration-300 ease-out ${
+                  className={`mt-1.5 overflow-x-auto rounded-[7px] border bg-code-bg px-3 py-2 font-mono text-[13px] leading-[1.5] transition-colors duration-300 ease-out ${
                     current
                       ? "border-signal/70 text-signal"
                       : completed

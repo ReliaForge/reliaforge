@@ -194,10 +194,6 @@ export function ConsoleWorkbench({
             className="stage-fade block h-auto w-full"
           />
         </div>
-
-        <div className="border-t border-hairline bg-panel px-5 py-3.5">
-          <p className="m-0 text-[15px] leading-[1.6] text-muted">{active.caption}</p>
-        </div>
       </div>
     </div>
   )
