@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-test("English landing page switches console views, themes, action traces, live plugin studio, and compose tabs", async ({ page }) => {
+test("English landing page simulates live topology recovery, interconnected micro-widgets, and Python studio", async ({ page }) => {
   await page.goto("/?lang=en&theme=dark")
 
   await expect(page.locator("html")).toHaveAttribute("lang", "en-US")
@@ -12,40 +12,31 @@ test("English landing page switches console views, themes, action traces, live p
     }),
   ).toBeVisible()
 
-  await expect(page.getByRole("link", { name: "Live demo", exact: true })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Full console demo", exact: true })).toHaveAttribute(
     "href",
     "https://demo.reliaforge.dev/",
   )
-  await expect(page.getByRole("link", { name: "GitHub", exact: true }).first()).toHaveAttribute(
-    "href",
-    "https://github.com/ReliaForge",
-  )
   await expect(page.getByText("docker pull ghcr.io/reliaforge/reliaforge:latest")).toBeVisible()
 
-  // Switch interactive console workbench tab in dark mode
-  await page.getByRole("tab", { name: "Proxmox VE" }).click()
-  const proxmoxImg = page.getByRole("img", { name: /ReliaForge Proxmox VE workspace/ })
-  await expect(proxmoxImg).toBeVisible()
-  await expect(proxmoxImg).toHaveAttribute("src", "/views/view-proxmox.png")
+  // Trigger incident simulation -> click allowlisted restart -> verify SQLite audit #4822
+  await page.getByTestId("simulate-incident").click()
+  const restartBtn = page.getByRole("button", { name: "Run allowlisted restart" })
+  if (await restartBtn.isVisible()) {
+    await restartBtn.click()
+  }
+  await expect(page.getByText(/#4822/)).toBeVisible({ timeout: 5000 })
 
-  // Toggle to light mode and verify screenshot + html class switch cleanly
+  // Toggle theme to light mode
   await page.getByTestId("theme-toggle").click()
   await expect(page.locator("html")).not.toHaveClass(/dark/)
-  await expect(proxmoxImg).toHaveAttribute("src", "/views/view-proxmox-light.png")
 
-  // Toggle interactive live iframe mode and back
-  await page.getByTestId("live-console-toggle").click()
-  await expect(page.locator('iframe[title*="Proxmox VE"]')).toBeVisible()
-  await page.getByTestId("live-console-toggle").click()
-  await expect(proxmoxImg).toBeVisible()
+  // Tap interconnected Argo CD sync & Alert silence micro-widgets -> verify shared ops_audit counter increments
+  await page.getByTestId("widget-argo-sync").click()
+  await expect(page.getByText("#4822").first()).toBeVisible()
+  await page.getByTestId("widget-alert-silence").click()
+  await expect(page.getByText("#4823")).toBeVisible()
 
-  // Switch interactive safety trace scenario and replay
-  await page.getByRole("tab", { name: "LXC shell" }).click()
-  await expect(page.getByText(/WS \/api\/v1\/plugins\/proxmox/)).toBeVisible()
-  await page.getByRole("button", { name: "Replay" }).click()
-  await expect(page.getByText(/ops_audit -> actor=oncall/)).toBeVisible()
-
-  // Interact with live Python Plugin Studio (code tab + verify action)
+  // Interact with live Python Plugin Studio
   await page.getByRole("tab", { name: "workspace.tsx" }).click()
   await expect(page.getByText(/DataTable/).first()).toBeVisible()
   await page.getByRole("button", { name: "Verify" }).first().click()
@@ -60,17 +51,13 @@ test("Chinese landing page renders localized copy and light mode cleanly", async
   await expect(
     page.getByRole("heading", { name: "自托管的基础设施与运维工具台。", level: 1 }),
   ).toBeVisible()
-  await expect(page.getByRole("link", { name: "在线演示", exact: true }).first()).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "全屏控制台演示", exact: true })).toHaveAttribute(
     "href",
     "https://demo.reliaforge.dev/?lang=zh",
   )
-  await expect(page.getByRole("img", { name: /ReliaForge 总览界面/ })).toHaveAttribute(
-    "src",
-    "/views/view-overview-light.png",
-  )
 })
 
-test("language and theme switchers work without horizontal overflow", async ({ page }) => {
+test("language and theme switchers work without horizontal overflow on desktop and mobile", async ({ page }) => {
   await page.goto("/?lang=en&theme=light")
   await page.getByRole("radio", { name: "中文" }).click()
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN")

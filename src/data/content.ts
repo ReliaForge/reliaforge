@@ -4,34 +4,6 @@ export type Locale = "en" | "zh"
 
 export type ThemeMode = "light" | "dark"
 
-export type WorkspaceViewId = "overview" | "proxmox" | "kubernetes" | "gitops" | "observability"
-
-export interface WorkspaceView {
-  id: WorkspaceViewId
-  label: string
-  route: string
-  srcLight: string
-  srcDark: string
-  alt: string
-}
-
-export interface SafetyScenario {
-  id: string
-  label: string
-  steps: Array<{
-    stage: string
-    code: string
-    latencyMs: number
-  }>
-}
-
-export interface PluginEntry {
-  id: string
-  title: string
-  summary: string
-  viewId?: WorkspaceViewId
-}
-
 export interface CodeTab {
   id: string
   filename: string
@@ -44,6 +16,32 @@ export interface DeployTab {
   label: string
   language: SnippetLanguage
   code: string
+}
+
+export interface TopologyCopy {
+  statusNominal: string
+  statusAlert: string
+  statusGuarding: string
+  statusHealed: string
+  simulateBtn: string
+  replayBtn: string
+  restartNowBtn: string
+  k8sRestarting: string
+  k8sRecovered: string
+  pythonNodeTitle: string
+}
+
+export interface WidgetsCopy {
+  pauseLogs: string
+  resumeLogs: string
+  restartPod: string
+  syncAction: string
+  obsTitle: string
+  firingState: string
+  silencedState: string
+  silenceBtn: string
+  auditTitle: string
+  justNow: string
 }
 
 export interface StudioCopy {
@@ -88,24 +86,13 @@ export interface SiteCopy {
     primaryCta: string
     githubCta: string
     pullCommand: string
-    openDemoHint: string
-    liveToggle: string
-    snapshotToggle: string
-    clickToInteract: string
   }
-  workspaces: WorkspaceView[]
-  opsStory: {
-    heading: string
-    lead: string
-    replayTrace: string
-    rails: string[]
-    scenarios: SafetyScenario[]
-  }
+  topology: TopologyCopy
+  guardrails: Array<{ title: string; body: string }>
   suite: {
     heading: string
     repoLabel: string
-    inspectView: string
-    plugins: PluginEntry[]
+    widgets: WidgetsCopy
   }
   byo: {
     heading: string
@@ -225,7 +212,7 @@ RELIAFORGE_PLUGIN_PATHS=./local-plugins reliaforge`
 export const COPY: Record<Locale, SiteCopy> = {
   en: {
     nav: {
-      console: "Console",
+      console: "Topology",
       plugins: "Plugins",
       build: "Extend",
       deploy: "Deploy",
@@ -240,219 +227,56 @@ export const COPY: Record<Locale, SiteCopy> = {
       title: "Self-hosted console for your infrastructure and Python ops tools.",
       tagline:
         "Inspect Proxmox hosts, tail Kubernetes logs, sync Argo CD apps, and silence alerts in one place. Mount your own Python scripts as plugins without building another login flow or frontend.",
-      primaryCta: "Live demo",
+      primaryCta: "Full console demo",
       githubCta: "GitHub",
       pullCommand: "docker pull ghcr.io/reliaforge/reliaforge:latest",
-      openDemoHint: "Full screen",
-      liveToggle: "Interactive mode",
-      snapshotToggle: "Static view",
-      clickToInteract: "Click to interact live",
     },
-    workspaces: [
+    topology: {
+      statusNominal: "All layers nominal · 24/24 pods ready · 0 firing alerts",
+      statusAlert: "Alert firing · payments-api OOMKilled (1/3 ready)",
+      statusGuarding: "Verifying proxy identity & namespace=payments allowlist...",
+      statusHealed: "Rolling restart completed · 3/3 ready · logged to SQLite",
+      simulateBtn: "Simulate incident & recovery",
+      replayBtn: "Replay incident",
+      restartNowBtn: "Run allowlisted restart",
+      k8sRestarting: "rolling restart...",
+      k8sRecovered: "3/3 ready · healed",
+      pythonNodeTitle: "Python Plugin",
+    },
+    guardrails: [
       {
-        id: "overview",
-        label: "Overview",
-        route: "/",
-        srcLight: "/views/view-overview-light.png",
-        srcDark: "/views/view-overview.png",
-        alt: "ReliaForge overview showing Proxmox capacity, Kubernetes pods, GitOps sync status, topology, and service catalog",
+        title: "Zero browser secrets",
+        body: "Proxmox tokens, kubeconfigs, and Argo CD keys stay strictly on the server.",
       },
       {
-        id: "proxmox",
-        label: "Proxmox VE",
-        route: "/p/proxmox",
-        srcLight: "/views/view-proxmox-light.png",
-        srcDark: "/views/view-proxmox.png",
-        alt: "ReliaForge Proxmox VE workspace showing RRD performance graphs, storage pools, and QEMU/LXC inventory",
+        title: "Scoped write allowlists",
+        body: "Run read-only, or restrict writes to explicit VMIDs and Kubernetes namespaces.",
       },
       {
-        id: "kubernetes",
-        label: "Kubernetes",
-        route: "/p/kubernetes",
-        srcLight: "/views/view-kubernetes-light.png",
-        srcDark: "/views/view-kubernetes.png",
-        alt: "ReliaForge Kubernetes workspace showing cluster nodes, workloads, GitOps linkage, and container images",
-      },
-      {
-        id: "gitops",
-        label: "Argo CD",
-        route: "/p/gitops_argocd",
-        srcLight: "/views/view-gitops-light.png",
-        srcDark: "/views/view-gitops.png",
-        alt: "ReliaForge GitOps workspace listing Argo CD applications, sync states, health, and Git revisions",
-      },
-      {
-        id: "observability",
-        label: "Observability",
-        route: "/p/observability",
-        srcLight: "/views/view-observability-light.png",
-        srcDark: "/views/view-observability.png",
-        alt: "ReliaForge Observability workspace querying Loki log streams alongside Prometheus and Alertmanager health",
+        title: "Shared SQLite audit",
+        body: "Every restart, LXC shell, sync, and alert silence logs who ran what.",
       },
     ],
-    opsStory: {
-      heading: "Read-only by default. Guarded when you write.",
-      lead:
-        "Put cluster views and internal Python tools behind your existing auth proxy. Upstream credentials stay on the server, and write actions only run where you explicitly allow them.",
-      replayTrace: "Replay",
-      rails: [
-        "Proxmox tokens, kubeconfigs, and Argo CD keys stay on the backend and never reach the browser.",
-        "Run strictly read-only, or restrict writes to specific VMIDs and Kubernetes namespaces.",
-        "Power controls, rolling restarts, syncs, and silences require confirmation and log to local SQLite.",
-      ],
-      scenarios: [
-        {
-          id: "restart",
-          label: "Rolling restart",
-          steps: [
-            {
-              stage: "Operator request",
-              code: "POST /api/v1/plugins/kubernetes/workloads/payments/payments-api/restart",
-              latencyMs: 3,
-            },
-            {
-              stage: "Proxy auth & origin check",
-              code: "X-ReliaForge-Identity: oncall@example.com  Sec-Fetch-Site: same-origin",
-              latencyMs: 2,
-            },
-            {
-              stage: "Namespace allowlist & confirmation",
-              code: "allowlist=payments  intent_token=verified",
-              latencyMs: 4,
-            },
-            {
-              stage: "SQLite audit write",
-              code: "ops_audit -> actor=oncall  action=k8s.rollout_restart  outcome=succeeded",
-              latencyMs: 14,
-            },
-          ],
-        },
-        {
-          id: "lxc",
-          label: "LXC shell",
-          steps: [
-            {
-              stage: "WebSocket upgrade",
-              code: "WS /api/v1/plugins/proxmox/nodes/pve-prod-01/lxc/201/terminal",
-              latencyMs: 4,
-            },
-            {
-              stage: "Proxy peer & Origin check",
-              code: "peer=198.51.100.10  origin=https://ops.example.com  status=accepted",
-              latencyMs: 2,
-            },
-            {
-              stage: "VMID policy & PVE termproxy ticket",
-              code: "vmid=201  pve_ticket=server_only  termproxy=connected",
-              latencyMs: 22,
-            },
-            {
-              stage: "Session audit",
-              code: "ops_audit -> actor=oncall  action=proxmox.lxc_terminal  target=lxc/201",
-              latencyMs: 5,
-            },
-          ],
-        },
-        {
-          id: "sync",
-          label: "Argo CD sync",
-          steps: [
-            {
-              stage: "Sync request",
-              code: "POST /api/v1/plugins/gitops_argocd/applications/payments-api/sync",
-              latencyMs: 3,
-            },
-            {
-              stage: "Proxy auth",
-              code: "X-ReliaForge-Identity: oncall@example.com  argo_token=server_only",
-              latencyMs: 2,
-            },
-            {
-              stage: "Read-only check & confirmation",
-              code: "read_only=false  prune=false  intent_token=verified",
-              latencyMs: 4,
-            },
-            {
-              stage: "Revision recorded",
-              code: "ops_audit -> actor=oncall  action=argocd.sync  rev=8f4c2a1",
-              latencyMs: 18,
-            },
-          ],
-        },
-        {
-          id: "silence",
-          label: "Alert silence",
-          steps: [
-            {
-              stage: "Create silence",
-              code: "POST /api/v1/plugins/observability/silences",
-              latencyMs: 3,
-            },
-            {
-              stage: "Bind proxy identity",
-              code: "createdBy=oncall@example.com  Sec-Fetch-Site: same-origin",
-              latencyMs: 2,
-            },
-            {
-              stage: "Validate matchers & duration",
-              code: "alertname=NodeDiskMaintenance  duration=2h  comment=verified",
-              latencyMs: 3,
-            },
-            {
-              stage: "Audit recorded",
-              code: "ops_audit -> actor=oncall  action=observability.silence_create",
-              latencyMs: 11,
-            },
-          ],
-        },
-      ],
-    },
     suite: {
-      heading: "Six built-in plugins. Disable what you don't use.",
+      heading: "Six built-in plugins. Tap any widget to try.",
       repoLabel: "reliaforge-plugins on GitHub",
-      inspectView: "Show screen",
-      plugins: [
-        {
-          id: "infra_overview",
-          title: "Overview",
-          summary: "Proxmox hosts, Kubernetes nodes, GitOps sync status, active alerts, and service links.",
-          viewId: "overview",
-        },
-        {
-          id: "proxmox",
-          title: "Proxmox VE",
-          summary: "Node RRD graphs, storage pools, QEMU/LXC inventory, power controls, and LXC web shell.",
-          viewId: "proxmox",
-        },
-        {
-          id: "kubernetes",
-          title: "Kubernetes",
-          summary: "Nodes, workloads, pods, events, live SSE pod logs, container exec, and rolling restarts.",
-          viewId: "kubernetes",
-        },
-        {
-          id: "gitops_argocd",
-          title: "Argo CD",
-          summary: "Application sync status, deployed Git revisions, resource trees, and manual sync triggers.",
-          viewId: "gitops",
-        },
-        {
-          id: "observability",
-          title: "Observability",
-          summary: "Prometheus metrics, Loki log queries, and Alertmanager alert silences.",
-          viewId: "observability",
-        },
-        {
-          id: "ops_audit",
-          title: "Operations Audit",
-          summary: "Local SQLite audit log shared across plugins in the same process.",
-        },
-      ],
+      widgets: {
+        pauseLogs: "Pause",
+        resumeLogs: "Live",
+        restartPod: "Restart",
+        syncAction: "Sync",
+        obsTitle: "Observability",
+        firingState: "Alertmanager · firing",
+        silencedState: "Silenced for 2h",
+        silenceBtn: "Silence 2h",
+        auditTitle: "Operations Audit",
+        justNow: "now",
+      },
     },
     byo: {
       heading: "Bring your existing Python scripts.",
       lead:
-        "Wrap a FastAPI router as a plugin and get proxy auth, console UI primitives, and shared SQLite audit out of the box.",
+        "Wrap a FastAPI router as a plugin and get proxy auth, @reliaforge/plugin-sdk tables, and shared SQLite audit out of the box.",
       docsCta: "Plugin development guide",
       tabs: CODE_TABS,
       studio: {
@@ -487,8 +311,8 @@ export const COPY: Record<Locale, SiteCopy> = {
       ],
     },
     closing: {
-      heading: "Try the interactive demo in your browser.",
-      cta: "Open live demo",
+      heading: "Want to see the full sidebar console?",
+      cta: "Open full console demo",
     },
     footer: {
       docs: "Docs",
@@ -503,8 +327,8 @@ export const COPY: Record<Locale, SiteCopy> = {
   },
   zh: {
     nav: {
-      console: "界面预览",
-      plugins: "内置插件",
+      console: "拓扑演示",
+      plugins: "内置组件",
       build: "接入脚本",
       deploy: "部署",
       docs: "文档",
@@ -518,214 +342,51 @@ export const COPY: Record<Locale, SiteCopy> = {
       title: "自托管的基础设施与运维工具台。",
       tagline:
         "在同一个网页里看 Proxmox、查 K8s 日志、同步 Argo CD、静默告警；手头现成的 Python 运维脚本也能直接挂进来跑，不用再单写登录和前端。",
-      primaryCta: "在线演示",
+      primaryCta: "全屏控制台演示",
       githubCta: "GitHub",
       pullCommand: "docker pull ghcr.io/reliaforge/reliaforge:latest",
-      openDemoHint: "全屏演示",
-      liveToggle: "框内实操",
-      snapshotToggle: "静态截图",
-      clickToInteract: "点击直接在框内交互",
     },
-    workspaces: [
+    topology: {
+      statusNominal: "全链路正常 · 24/24 Pod 就绪 · 0 条活跃告警",
+      statusAlert: "告警触发 · payments-api OOMKilled (1/3 就绪)",
+      statusGuarding: "正在校验代理身份头与 namespace=payments 白名单...",
+      statusHealed: "滚动重启已完成 · 3/3 恢复就绪 · 已写入 SQLite 审计",
+      simulateBtn: "模拟一次告警自愈",
+      replayBtn: "再演一次",
+      restartNowBtn: "执行白名单重启",
+      k8sRestarting: "滚动重启中...",
+      k8sRecovered: "3/3 已恢复",
+      pythonNodeTitle: "自研 Python 插件",
+    },
+    guardrails: [
       {
-        id: "overview",
-        label: "总览",
-        route: "/",
-        srcLight: "/views/view-overview-light.png",
-        srcDark: "/views/view-overview.png",
-        alt: "ReliaForge 总览界面，展示 Proxmox 容量、Kubernetes Pod 状态、GitOps 同步状态、拓扑与服务目录",
+        title: "浏览器零密钥",
+        body: "Proxmox Token、Kubeconfig 与 Argo CD 密钥只留在后端进程。",
       },
       {
-        id: "proxmox",
-        label: "Proxmox VE",
-        route: "/p/proxmox",
-        srcLight: "/views/view-proxmox-light.png",
-        srcDark: "/views/view-proxmox.png",
-        alt: "ReliaForge Proxmox VE 工作区，展示 RRD 趋势图、存储池与 QEMU/LXC 列表",
+        title: "写操作走白名单",
+        body: "默认只读，也可仅对指定 VMID 与 K8s 命名空间放开写权限。",
       },
       {
-        id: "kubernetes",
-        label: "Kubernetes",
-        route: "/p/kubernetes",
-        srcLight: "/views/view-kubernetes-light.png",
-        srcDark: "/views/view-kubernetes.png",
-        alt: "ReliaForge Kubernetes 工作区，展示节点负载、Deployment 工作负载、GitOps 关联与镜像版本",
-      },
-      {
-        id: "gitops",
-        label: "Argo CD",
-        route: "/p/gitops_argocd",
-        srcLight: "/views/view-gitops-light.png",
-        srcDark: "/views/view-gitops.png",
-        alt: "ReliaForge GitOps 工作区，展示 Argo CD 应用同步状态、健康度与 Git 提交哈希",
-      },
-      {
-        id: "observability",
-        label: "可观测性",
-        route: "/p/observability",
-        srcLight: "/views/view-observability-light.png",
-        srcDark: "/views/view-observability.png",
-        alt: "ReliaForge 可观测性工作区，查询 Loki 日志流并查看 Prometheus 与 Alertmanager 状态",
+        title: "共享 SQLite 审计",
+        body: "重启、打开 LXC 终端、GitOps 同步与告警静默全部落盘可查。",
       },
     ],
-    opsStory: {
-      heading: "默认只读，写操作走白名单。",
-      lead:
-        "把日常基础设施面板和内部 Python 接口收进同一个反向代理入口。上游密钥只放后端，重启和同步这类写操作按白名单放行。",
-      replayTrace: "重放",
-      rails: [
-        "Proxmox Token、Kubeconfig 与 Argo CD 密钥只保存在服务端，不进浏览器。",
-        "可设为全局只读，或仅对指定 VMID 与 K8s 命名空间开放写权限。",
-        "电源控制、滚动重启、GitOps 同步与告警静默均需二次确认，并写入本地 SQLite。",
-      ],
-      scenarios: [
-        {
-          id: "restart",
-          label: "滚动重启",
-          steps: [
-            {
-              stage: "发起请求",
-              code: "POST /api/v1/plugins/kubernetes/workloads/payments/payments-api/restart",
-              latencyMs: 3,
-            },
-            {
-              stage: "代理鉴权与同源校验",
-              code: "X-ReliaForge-Identity: oncall@example.com  Sec-Fetch-Site: same-origin",
-              latencyMs: 2,
-            },
-            {
-              stage: "命名空间白名单与确认令牌",
-              code: "allowlist=payments  intent_token=verified",
-              latencyMs: 4,
-            },
-            {
-              stage: "写入 SQLite 审计",
-              code: "ops_audit -> actor=oncall  action=k8s.rollout_restart  outcome=succeeded",
-              latencyMs: 14,
-            },
-          ],
-        },
-        {
-          id: "lxc",
-          label: "LXC 终端",
-          steps: [
-            {
-              stage: "WebSocket 升级",
-              code: "WS /api/v1/plugins/proxmox/nodes/pve-prod-01/lxc/201/terminal",
-              latencyMs: 4,
-            },
-            {
-              stage: "代理对端与 Origin 校验",
-              code: "peer=198.51.100.10  origin=https://ops.example.com  status=accepted",
-              latencyMs: 2,
-            },
-            {
-              stage: "VMID 白名单与服务端换票",
-              code: "vmid=201  pve_ticket=server_only  termproxy=connected",
-              latencyMs: 22,
-            },
-            {
-              stage: "记录终端会话",
-              code: "ops_audit -> actor=oncall  action=proxmox.lxc_terminal  target=lxc/201",
-              latencyMs: 5,
-            },
-          ],
-        },
-        {
-          id: "sync",
-          label: "Argo CD 同步",
-          steps: [
-            {
-              stage: "发起同步",
-              code: "POST /api/v1/plugins/gitops_argocd/applications/payments-api/sync",
-              latencyMs: 3,
-            },
-            {
-              stage: "代理鉴权",
-              code: "X-ReliaForge-Identity: oncall@example.com  argo_token=server_only",
-              latencyMs: 2,
-            },
-            {
-              stage: "只读检查与确认令牌",
-              code: "read_only=false  prune=false  intent_token=verified",
-              latencyMs: 4,
-            },
-            {
-              stage: "记录同步版本",
-              code: "ops_audit -> actor=oncall  action=argocd.sync  rev=8f4c2a1",
-              latencyMs: 18,
-            },
-          ],
-        },
-        {
-          id: "silence",
-          label: "告警静默",
-          steps: [
-            {
-              stage: "创建静默",
-              code: "POST /api/v1/plugins/observability/silences",
-              latencyMs: 3,
-            },
-            {
-              stage: "绑定代理身份",
-              code: "createdBy=oncall@example.com  Sec-Fetch-Site: same-origin",
-              latencyMs: 2,
-            },
-            {
-              stage: "校验匹配标签与时长",
-              code: "alertname=NodeDiskMaintenance  duration=2h  comment=verified",
-              latencyMs: 3,
-            },
-            {
-              stage: "写入审计记录",
-              code: "ops_audit -> actor=oncall  action=observability.silence_create",
-              latencyMs: 11,
-            },
-          ],
-        },
-      ],
-    },
     suite: {
-      heading: "内置六个官方插件，用不到的直接关掉。",
+      heading: "内置六个官方插件，直接点卡片就能试。",
       repoLabel: "reliaforge-plugins 源码",
-      inspectView: "查看界面",
-      plugins: [
-        {
-          id: "infra_overview",
-          title: "基础设施总览",
-          summary: "聚合 Proxmox 宿主机、K8s 节点、GitOps 状态、活跃告警与常用服务入口。",
-          viewId: "overview",
-        },
-        {
-          id: "proxmox",
-          title: "Proxmox VE",
-          summary: "节点 RRD 指标、存储池、QEMU/LXC 列表、电源控制与 LXC 网页终端。",
-          viewId: "proxmox",
-        },
-        {
-          id: "kubernetes",
-          title: "Kubernetes",
-          summary: "节点与工作负载列表、Pod SSE 实时日志、容器 Exec 终端与滚动重启。",
-          viewId: "kubernetes",
-        },
-        {
-          id: "gitops_argocd",
-          title: "Argo CD",
-          summary: "应用同步状态、线上 Git 提交哈希、资源树查看与手动同步。",
-          viewId: "gitops",
-        },
-        {
-          id: "observability",
-          title: "可观测性",
-          summary: "Prometheus 指标查询、Loki 日志检索与 Alertmanager 告警静默。",
-          viewId: "observability",
-        },
-        {
-          id: "ops_audit",
-          title: "操作审计",
-          summary: "本地 SQLite 审计表，供同一进程内的其他插件直接调用记录。",
-        },
-      ],
+      widgets: {
+        pauseLogs: "暂停",
+        resumeLogs: "实时",
+        restartPod: "重启",
+        syncAction: "同步",
+        obsTitle: "可观测性",
+        firingState: "Alertmanager · 触发中",
+        silencedState: "已静默 2 小时",
+        silenceBtn: "静默 2h",
+        auditTitle: "操作审计流",
+        justNow: "刚刚",
+      },
     },
     byo: {
       heading: "手头的 Python 脚本，加个路由就能挂进来。",
@@ -764,8 +425,8 @@ export const COPY: Record<Locale, SiteCopy> = {
       ],
     },
     closing: {
-      heading: "先在浏览器里试一圈内置演示。",
-      cta: "打开在线演示",
+      heading: "想看带完整侧边栏的 1:1 控制台？",
+      cta: "打开全屏在线演示",
     },
     footer: {
       docs: "文档",

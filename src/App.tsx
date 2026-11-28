@@ -1,12 +1,12 @@
 import { ArrowUpRight, Check, Copy, Moon, Sun } from "lucide-react"
 import { useEffect, useState } from "react"
-import { ConsoleWorkbench } from "./components/ConsoleWorkbench"
+import { DeconstructedWidgets } from "./components/DeconstructedWidgets"
 import { DeployStage } from "./components/DeployStage"
 import { HeroMeshCanvas } from "./components/HeroMeshCanvas"
+import { LiveTopologyStage } from "./components/LiveTopologyStage"
 import { PluginLiveStudio } from "./components/PluginLiveStudio"
 import { Reveal } from "./components/Reveal"
-import { SafetyFlowVisualizer } from "./components/SafetyFlowVisualizer"
-import { COPY, type Locale, type ThemeMode, type WorkspaceViewId } from "./data/content"
+import { COPY, type Locale, type ThemeMode } from "./data/content"
 
 const LOCALE_STORAGE_KEY = "rf.web.locale"
 const THEME_STORAGE_KEY = "rf.web.theme"
@@ -57,7 +57,6 @@ function GitHubIcon() {
 export function App() {
   const [locale, setLocale] = useState<Locale>(() => detectInitialLocale())
   const [theme, setTheme] = useState<ThemeMode>(() => detectInitialTheme())
-  const [activeView, setActiveView] = useState<WorkspaceViewId>("overview")
   const [scrolled, setScrolled] = useState(false)
   const [copiedPull, setCopiedPull] = useState(false)
 
@@ -89,12 +88,6 @@ export function App() {
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
-
-  const jumpToWorkspace = (viewId: WorkspaceViewId) => {
-    setActiveView(viewId)
-    const el = document.getElementById("console")
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
-  }
 
   const copyPullCommand = async () => {
     try {
@@ -221,8 +214,8 @@ export function App() {
       </header>
 
       <main>
-        {/* Act 1: Self-Hosted OSS Hero + Quick Docker Pull + Live Interactive Workbench */}
-        <section className="hero-blueprint relative -mt-16 overflow-x-clip border-b border-hairline pt-24 pb-16 sm:pt-28 sm:pb-24">
+        {/* Act 1: Hero + Unboxed Live Infrastructure Nervous System */}
+        <section className="hero-blueprint relative -mt-16 overflow-x-clip border-b border-hairline pt-24 pb-16 sm:pt-28 sm:pb-20">
           <HeroMeshCanvas theme={theme} />
 
           <div className="relative z-10 mx-auto max-w-[1280px] px-5 sm:px-8">
@@ -275,10 +268,10 @@ export function App() {
                 <button
                   type="button"
                   onClick={() => void copyPullCommand()}
-                  className="group inline-flex max-w-full items-center gap-3 overflow-x-auto rounded-[7px] border border-hairline bg-panel/90 px-3.5 py-2 font-mono text-[13px] text-muted transition-colors duration-200 ease-out hover:border-signal/55 hover:text-ink"
+                  className="group inline-flex max-w-full items-center gap-2 rounded-[7px] border border-hairline bg-panel/90 px-3 py-2 font-mono text-[11.5px] text-muted transition-colors duration-200 ease-out hover:border-signal/55 hover:text-ink sm:gap-3 sm:px-3.5 sm:text-[13px]"
                 >
-                  <span className="select-none text-signal">$</span>
-                  <span className="whitespace-nowrap">{t.hero.pullCommand}</span>
+                  <span className="shrink-0 select-none text-signal">$</span>
+                  <span className="min-w-0 truncate">{t.hero.pullCommand}</span>
                   {copiedPull ? (
                     <Check className="h-3.5 w-3.5 shrink-0 text-signal" aria-hidden="true" />
                   ) : (
@@ -291,60 +284,25 @@ export function App() {
               </div>
             </div>
 
-            <div className="hero-stagger-4 mt-10 sm:mt-12">
-              <ConsoleWorkbench
-                views={t.workspaces}
-                activeId={activeView}
-                onSelect={setActiveView}
-                theme={theme}
-                locale={locale}
-                demoUrl={t.nav.demoUrl}
-                openDemoHint={t.hero.openDemoHint}
-                liveToggleLabel={t.hero.liveToggle}
-                snapshotToggleLabel={t.hero.snapshotToggle}
-                clickToInteractLabel={t.hero.clickToInteract}
-              />
+            <div className="hero-stagger-4 mt-12 sm:mt-14">
+              <LiveTopologyStage copy={t.topology} />
             </div>
           </div>
         </section>
 
-        {/* Act 2: Asymmetric Split — Guarded Writes + Request-to-Audit Visualizer */}
-        <section className="border-b border-hairline py-20 sm:py-24">
-          <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-16">
-            <Reveal>
-              <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
-                {t.opsStory.heading}
-              </h2>
-              <p className="mt-5 max-w-[58ch] text-[15px] leading-[1.7] text-muted">
-                {t.opsStory.lead}
-              </p>
-
-              <ul className="mt-8 list-none border-b border-hairline p-0">
-                {t.opsStory.rails.map((rail) => (
-                  <li
-                    key={rail}
-                    className="flex items-start gap-3 border-t border-hairline py-4 text-[15px] leading-[1.65] text-ink"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-signal"
-                    />
-                    <span>{rail}</span>
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-
-            <Reveal delayMs={90}>
-              <SafetyFlowVisualizer
-                scenarios={t.opsStory.scenarios}
-                replayLabel={t.opsStory.replayTrace}
-              />
-            </Reveal>
+        {/* Architectural Hairline Strip: 3 Security Invariants */}
+        <section className="border-b border-hairline bg-panel/45">
+          <div className="mx-auto grid max-w-[1280px] divide-y divide-hairline px-5 sm:px-8 md:grid-cols-3 md:divide-x md:divide-y-0">
+            {t.guardrails.map((item) => (
+              <div key={item.title} className="py-6 md:px-6 md:first:pl-0 md:last:pr-0">
+                <div className="text-[15px] font-semibold text-ink">{item.title}</div>
+                <p className="m-0 mt-1.5 text-[14px] leading-[1.65] text-muted">{item.body}</p>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* Act 3: 6-Plugin Architectural Hairline Matrix */}
+        {/* Act 2: Deconstructed Interconnected 6-Plugin Micro-Widgets Canvas */}
         <section id="plugins" className="scroll-mt-20 border-b border-hairline py-20 sm:py-24">
           <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
             <Reveal>
@@ -367,48 +325,13 @@ export function App() {
               </div>
             </Reveal>
 
-            <Reveal delayMs={80}>
-              <div className="mt-10 grid border-t border-l border-hairline sm:grid-cols-2 lg:grid-cols-3">
-                {t.suite.plugins.map((plugin) => (
-                  <div
-                    key={plugin.id}
-                    className="plugin-tile group flex flex-col justify-between border-r border-b border-hairline bg-obsidian p-6 hover:bg-panel"
-                  >
-                    <div>
-                      <div className="flex items-baseline justify-between gap-3">
-                        <span className="text-[15px] font-semibold leading-[1.4] text-ink">
-                          {plugin.title}
-                        </span>
-                        <span className="font-mono text-[13px] text-subtle">{plugin.id}</span>
-                      </div>
-                      <p className="mt-2.5 text-[15px] leading-[1.65] text-muted">{plugin.summary}</p>
-                    </div>
-
-                    {plugin.viewId ? (
-                      <div className="mt-5">
-                        <button
-                          type="button"
-                          onClick={() => jumpToWorkspace(plugin.viewId!)}
-                          className="inline-flex items-center gap-1 text-[13px] font-medium text-signal transition-colors duration-200 ease-out hover:text-signal-hover"
-                        >
-                          <span>{t.suite.inspectView}</span>
-                          <span
-                            aria-hidden="true"
-                            className="inline-block transition-transform duration-200 ease-out group-hover:-translate-y-0.5"
-                          >
-                            ↑
-                          </span>
-                        </button>
-                      </div>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
+            <Reveal delayMs={80} className="mt-10">
+              <DeconstructedWidgets copy={t.suite.widgets} />
             </Reveal>
           </div>
         </section>
 
-        {/* Act 4: Full-Width Dual-Pane Python -> Live Rendered Plugin Studio */}
+        {/* Act 3: Full-Width Dual-Pane Python -> Live Rendered Plugin Studio */}
         <section id="build" className="scroll-mt-20 border-b border-hairline py-20 sm:py-24">
           <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
             <Reveal>
@@ -444,7 +367,7 @@ export function App() {
           </div>
         </section>
 
-        {/* Act 5: Full-Width Topology Rail + Ready-to-Run compose.yaml Deck */}
+        {/* Act 4: Full-Width Topology Rail + Ready-to-Run compose.yaml Deck */}
         <section id="deploy" className="scroll-mt-20 border-b border-hairline py-20 sm:py-24">
           <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
             <Reveal>

@@ -18,8 +18,8 @@ export function DeployStage({
   return (
     <div className="space-y-8">
       {/* Full-width 3-stage self-hosted runtime architecture bar */}
-      <div className="grid items-center gap-3 rounded-[12px] border border-hairline bg-panel p-4 sm:p-5 md:grid-cols-[1fr_auto_1.2fr_auto_1fr]">
-        <div className="rounded-[8px] border border-hairline bg-obsidian px-4 py-3">
+      <div className="grid items-center gap-3 rounded-[12px] border border-hairline bg-panel p-4 sm:p-5 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1.2fr)_auto_minmax(0,1fr)]">
+        <div className="min-w-0 rounded-[8px] border border-hairline bg-obsidian px-4 py-3">
           <div className="text-[14px] font-semibold text-ink">{deploy.archProxyTitle}</div>
           <div className="mt-1 font-mono text-[12px] text-subtle">
             Caddy · Nginx · Envoy · Cloudflare Access
