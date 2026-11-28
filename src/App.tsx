@@ -1,8 +1,9 @@
-import { ArrowUpRight, Moon, Sun } from "lucide-react"
+import { ArrowUpRight, Check, Copy, Moon, Sun } from "lucide-react"
 import { useEffect, useState } from "react"
-import { CodeWorkbench, DeployWorkbench } from "./components/CodeWorkbench"
 import { ConsoleWorkbench } from "./components/ConsoleWorkbench"
+import { DeployStage } from "./components/DeployStage"
 import { HeroMeshCanvas } from "./components/HeroMeshCanvas"
+import { PluginLiveStudio } from "./components/PluginLiveStudio"
 import { Reveal } from "./components/Reveal"
 import { SafetyFlowVisualizer } from "./components/SafetyFlowVisualizer"
 import { COPY, type Locale, type ThemeMode, type WorkspaceViewId } from "./data/content"
@@ -40,11 +41,25 @@ function detectInitialTheme(): ThemeMode {
     : "light"
 }
 
+function GitHubIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      className="h-4 w-4 shrink-0"
+    >
+      <path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+    </svg>
+  )
+}
+
 export function App() {
   const [locale, setLocale] = useState<Locale>(() => detectInitialLocale())
   const [theme, setTheme] = useState<ThemeMode>(() => detectInitialTheme())
   const [activeView, setActiveView] = useState<WorkspaceViewId>("overview")
   const [scrolled, setScrolled] = useState(false)
+  const [copiedPull, setCopiedPull] = useState(false)
 
   const t = COPY[locale]
 
@@ -79,6 +94,16 @@ export function App() {
     setActiveView(viewId)
     const el = document.getElementById("console")
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
+
+  const copyPullCommand = async () => {
+    try {
+      await navigator.clipboard.writeText(t.hero.pullCommand)
+      setCopiedPull(true)
+      window.setTimeout(() => setCopiedPull(false), 1600)
+    } catch {
+      setCopiedPull(false)
+    }
   }
 
   return (
@@ -196,7 +221,7 @@ export function App() {
       </header>
 
       <main>
-        {/* Monumental Hero + Interactive Infrastructure Mesh + 5-Workspace Console Stage */}
+        {/* Act 1: Self-Hosted OSS Hero + Quick Docker Pull + Live Interactive Workbench */}
         <section className="hero-blueprint relative -mt-16 overflow-x-clip border-b border-hairline pt-24 pb-16 sm:pt-28 sm:pb-24">
           <HeroMeshCanvas theme={theme} />
 
@@ -226,32 +251,64 @@ export function App() {
                   {t.hero.primaryCta}
                 </a>
                 <a
-                  href={t.nav.docsUrl}
-                  className="group inline-flex h-11 items-center justify-center gap-1.5 rounded-[7px] border border-hairline-strong bg-panel px-6 text-[14px] font-medium text-ink transition-colors duration-200 ease-out hover:border-muted hover:bg-surface"
+                  href="https://github.com/ReliaForge"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-[7px] border border-hairline-strong bg-panel px-5 text-[14px] font-medium text-ink transition-colors duration-200 ease-out hover:border-muted hover:bg-surface"
                 >
-                  {t.hero.secondaryCta}
+                  <GitHubIcon />
+                  <span>{t.hero.githubCta}</span>
+                </a>
+                <a
+                  href={t.nav.docsUrl}
+                  className="group inline-flex h-11 items-center justify-center gap-1.5 rounded-[7px] border border-hairline bg-panel/70 px-5 text-[14px] font-medium text-muted transition-colors duration-200 ease-out hover:border-hairline-strong hover:text-ink"
+                >
+                  {t.nav.docs}
                   <ArrowUpRight
-                    className="h-4 w-4 text-muted transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    className="h-4 w-4 text-subtle transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                     aria-hidden="true"
                   />
                 </a>
               </div>
+
+              <div className="hero-stagger-3 mt-4 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => void copyPullCommand()}
+                  className="group inline-flex max-w-full items-center gap-3 overflow-x-auto rounded-[7px] border border-hairline bg-panel/90 px-3.5 py-2 font-mono text-[13px] text-muted transition-colors duration-200 ease-out hover:border-signal/55 hover:text-ink"
+                >
+                  <span className="select-none text-signal">$</span>
+                  <span className="whitespace-nowrap">{t.hero.pullCommand}</span>
+                  {copiedPull ? (
+                    <Check className="h-3.5 w-3.5 shrink-0 text-signal" aria-hidden="true" />
+                  ) : (
+                    <Copy
+                      className="h-3.5 w-3.5 shrink-0 text-subtle transition-colors duration-150 group-hover:text-signal"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              </div>
             </div>
 
-            <div className="hero-stagger-4 mt-11 sm:mt-14">
+            <div className="hero-stagger-4 mt-10 sm:mt-12">
               <ConsoleWorkbench
                 views={t.workspaces}
                 activeId={activeView}
                 onSelect={setActiveView}
                 theme={theme}
+                locale={locale}
                 demoUrl={t.nav.demoUrl}
                 openDemoHint={t.hero.openDemoHint}
+                liveToggleLabel={t.hero.liveToggle}
+                snapshotToggleLabel={t.hero.snapshotToggle}
+                clickToInteractLabel={t.hero.clickToInteract}
               />
             </div>
           </div>
         </section>
 
-        {/* Section 1: Read-Only + Guarded Writes + Request-to-Audit Visualizer */}
+        {/* Act 2: Asymmetric Split — Guarded Writes + Request-to-Audit Visualizer */}
         <section className="border-b border-hairline py-20 sm:py-24">
           <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-16">
             <Reveal>
@@ -287,7 +344,7 @@ export function App() {
           </div>
         </section>
 
-        {/* Section 2: Official 6-Plugin Hairline Suite Matrix */}
+        {/* Act 3: 6-Plugin Architectural Hairline Matrix */}
         <section id="plugins" className="scroll-mt-20 border-b border-hairline py-20 sm:py-24">
           <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
             <Reveal>
@@ -351,33 +408,18 @@ export function App() {
           </div>
         </section>
 
-        {/* Section 3: Bring Your Own Python Tool */}
+        {/* Act 4: Full-Width Dual-Pane Python -> Live Rendered Plugin Studio */}
         <section id="build" className="scroll-mt-20 border-b border-hairline py-20 sm:py-24">
-          <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-16">
+          <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
             <Reveal>
-              <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
-                {t.byo.heading}
-              </h2>
-              <p className="mt-5 max-w-[58ch] text-[15px] leading-[1.7] text-muted">
-                {t.byo.lead}
-              </p>
+              <div className="flex flex-wrap items-end justify-between gap-6">
+                <div className="max-w-[680px]">
+                  <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
+                    {t.byo.heading}
+                  </h2>
+                  <p className="mt-4 text-[15px] leading-[1.7] text-muted">{t.byo.lead}</p>
+                </div>
 
-              <ul className="mt-8 list-none border-b border-hairline p-0">
-                {t.byo.points.map((point) => (
-                  <li
-                    key={point}
-                    className="flex items-start gap-3 border-t border-hairline py-4 text-[15px] leading-[1.65] text-ink"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-signal"
-                    />
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-6">
                 <a
                   href={`${t.nav.docsUrl}guide/plugin-development.html`}
                   className="group inline-flex items-center gap-1.5 text-[15px] font-medium text-ink underline decoration-signal decoration-1 underline-offset-4 transition-colors duration-200 ease-out hover:text-signal"
@@ -391,9 +433,10 @@ export function App() {
               </div>
             </Reveal>
 
-            <Reveal delayMs={90}>
-              <CodeWorkbench
+            <Reveal delayMs={80} className="mt-10">
+              <PluginLiveStudio
                 tabs={t.byo.tabs}
+                studio={t.byo.studio}
                 copyLabel={t.copyButton.copy}
                 copiedLabel={t.copyButton.copied}
               />
@@ -401,36 +444,22 @@ export function App() {
           </div>
         </section>
 
-        {/* Section 4: Single-Container Deployment */}
+        {/* Act 5: Full-Width Topology Rail + Ready-to-Run compose.yaml Deck */}
         <section id="deploy" className="scroll-mt-20 border-b border-hairline py-20 sm:py-24">
-          <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-16">
+          <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
             <Reveal>
-              <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
-                {t.deploy.heading}
-              </h2>
-              <p className="mt-5 max-w-[58ch] text-[15px] leading-[1.7] text-muted">
-                {t.deploy.lead}
-              </p>
-
-              <ul className="mt-8 list-none border-b border-hairline p-0">
-                {t.deploy.facts.map((fact) => (
-                  <li
-                    key={fact}
-                    className="flex items-start gap-3 border-t border-hairline py-4 text-[15px] leading-[1.65] text-ink"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-signal"
-                    />
-                    <span>{fact}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="max-w-[680px]">
+                <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
+                  {t.deploy.heading}
+                </h2>
+                <p className="mt-4 text-[15px] leading-[1.7] text-muted">{t.deploy.lead}</p>
+              </div>
             </Reveal>
 
-            <Reveal delayMs={90}>
-              <DeployWorkbench
-                tabs={t.deploy.tabs}
+            <Reveal delayMs={80} className="mt-10">
+              <DeployStage
+                deploy={t.deploy}
+                docsUrl={t.nav.docsUrl}
                 copyLabel={t.copyButton.copy}
                 copiedLabel={t.copyButton.copied}
               />

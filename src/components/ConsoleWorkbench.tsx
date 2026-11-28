@@ -1,15 +1,19 @@
-import { ArrowUpRight } from "lucide-react"
+import { ArrowUpRight, Image as ImageIcon, Play } from "lucide-react"
 import type { KeyboardEvent, PointerEvent } from "react"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
-import type { ThemeMode, WorkspaceView, WorkspaceViewId } from "../data/content"
+import type { Locale, ThemeMode, WorkspaceView, WorkspaceViewId } from "../data/content"
 
 interface ConsoleWorkbenchProps {
   views: WorkspaceView[]
   activeId: WorkspaceViewId
   onSelect: (id: WorkspaceViewId) => void
   theme: ThemeMode
+  locale: Locale
   demoUrl: string
   openDemoHint: string
+  liveToggleLabel: string
+  snapshotToggleLabel: string
+  clickToInteractLabel: string
 }
 
 export function ConsoleWorkbench({
@@ -17,17 +21,23 @@ export function ConsoleWorkbench({
   activeId,
   onSelect,
   theme,
+  locale,
   demoUrl,
   openDemoHint,
+  liveToggleLabel,
+  snapshotToggleLabel,
+  clickToInteractLabel,
 }: ConsoleWorkbenchProps) {
   const stageRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
   const tabListRef = useRef<HTMLDivElement>(null)
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const [pill, setPill] = useState({ left: 0, width: 0, ready: false })
+  const [liveMode, setLiveMode] = useState(false)
 
   const active = views.find((v) => v.id === activeId) ?? views[0]
   const imgSrc = theme === "light" ? active.srcLight : active.srcDark
+  const iframeSrc = `https://demo.reliaforge.dev/#${active.route}?lang=${locale}`
 
   // Smooth sliding indicator pill inside tablist
   useLayoutEffect(() => {
@@ -46,12 +56,12 @@ export function ConsoleWorkbench({
     return () => window.removeEventListener("resize", updatePill)
   }, [active.id, views])
 
-  // Subtle 60fps scroll-linked 3D hardware stage leveling (disabled on reduced motion)
+  // Subtle 60fps scroll-linked 3D hardware stage leveling (disabled on reduced motion or live iframe)
   useEffect(() => {
     const stage = stageRef.current
     const frame = frameRef.current
     if (!stage || !frame) return
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (liveMode || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       frame.style.transform = ""
       return
     }
@@ -63,9 +73,9 @@ export function ConsoleWorkbench({
       const viewportH = window.innerHeight || 900
       const raw = (rect.top - viewportH * 0.14) / (viewportH * 0.65)
       const clamped = Math.max(0, Math.min(1, raw))
-      const deg = clamped * 3.8
+      const deg = clamped * 3.4
       if (deg > 0.05) {
-        const scale = (1 - deg * 0.003).toFixed(4)
+        const scale = (1 - deg * 0.0028).toFixed(4)
         frame.style.transform = `rotateX(${deg.toFixed(2)}deg) scale(${scale})`
         frame.style.transformOrigin = "center top"
       } else {
@@ -86,7 +96,7 @@ export function ConsoleWorkbench({
       window.removeEventListener("scroll", onScroll)
       window.removeEventListener("resize", onScroll)
     }
-  }, [])
+  }, [liveMode])
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const el = frameRef.current
@@ -113,7 +123,7 @@ export function ConsoleWorkbench({
         onPointerMove={handlePointerMove}
         className="workbench-frame overflow-hidden rounded-[12px] will-change-transform"
       >
-        <div className="flex items-center justify-between gap-3 border-b border-hairline bg-panel px-3 py-2.5 sm:px-4 sm:py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline bg-panel px-3 py-2.5 sm:px-4 sm:py-3">
           <div
             ref={tabListRef}
             role="tablist"
@@ -156,19 +166,38 @@ export function ConsoleWorkbench({
             })}
           </div>
 
-          <div className="hidden items-center gap-4 md:flex">
-            <span className="inline-flex items-center gap-2 font-mono text-[13px] text-subtle">
+          <div className="flex items-center gap-3">
+            <span className="hidden items-center gap-2 font-mono text-[13px] text-subtle lg:inline-flex">
               <span className="relative flex h-2 w-2" aria-hidden="true">
                 <span className="signal-ping absolute inline-flex h-full w-full rounded-full bg-signal" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
               </span>
               ops.example.com{active.route}
             </span>
+
+            <button
+              type="button"
+              data-testid="live-console-toggle"
+              onClick={() => setLiveMode((prev) => !prev)}
+              className={`inline-flex items-center gap-1.5 rounded-[6px] border px-2.5 py-1 text-[13px] font-medium transition-colors duration-200 ease-out ${
+                liveMode
+                  ? "border-signal/60 bg-signal/15 text-signal"
+                  : "border-hairline bg-obsidian text-ink hover:border-signal/50 hover:text-signal"
+              }`}
+            >
+              {liveMode ? (
+                <ImageIcon className="h-3.5 w-3.5" aria-hidden="true" />
+              ) : (
+                <Play className="h-3.5 w-3.5 text-signal" aria-hidden="true" />
+              )}
+              <span>{liveMode ? snapshotToggleLabel : liveToggleLabel}</span>
+            </button>
+
             <a
               href={demoUrl}
               target="_blank"
               rel="noreferrer"
-              className="group inline-flex items-center gap-1 text-[13px] font-medium text-muted transition-colors duration-200 ease-out hover:text-signal"
+              className="group hidden items-center gap-1 text-[13px] font-medium text-muted transition-colors duration-200 ease-out hover:text-signal sm:inline-flex"
             >
               {openDemoHint}
               <ArrowUpRight
@@ -183,16 +212,35 @@ export function ConsoleWorkbench({
           id={`panel-${active.id}`}
           role="tabpanel"
           aria-labelledby={`tab-${active.id}`}
-          className="bg-obsidian"
+          className="group/stage relative aspect-[16/7.6] w-full overflow-hidden bg-obsidian"
         >
-          <img
-            key={`${active.id}-${theme}`}
-            src={imgSrc}
-            alt={active.alt}
-            width={2280}
-            height={1380}
-            className="stage-fade block h-auto w-full"
-          />
+          {liveMode ? (
+            <iframe
+              key={`${active.id}-${locale}`}
+              src={iframeSrc}
+              title={`ReliaForge interactive demo - ${active.label}`}
+              className="h-full w-full border-0 bg-obsidian"
+            />
+          ) : (
+            <>
+              <img
+                key={`${active.id}-${theme}`}
+                src={imgSrc}
+                alt={active.alt}
+                width={2280}
+                height={1380}
+                className="stage-fade block h-full w-full object-cover object-top"
+              />
+              <button
+                type="button"
+                onClick={() => setLiveMode(true)}
+                className="absolute right-4 bottom-4 inline-flex items-center gap-2 rounded-[8px] border border-hairline-strong bg-panel/92 px-3.5 py-2 text-[13px] font-medium text-ink opacity-0 shadow-lg backdrop-blur-md transition-opacity duration-200 ease-out hover:border-signal hover:text-signal focus-visible:opacity-100 group-hover/stage:opacity-100"
+              >
+                <Play className="h-3.5 w-3.5 text-signal" aria-hidden="true" />
+                <span>{clickToInteractLabel}</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

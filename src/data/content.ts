@@ -46,6 +46,29 @@ export interface DeployTab {
   code: string
 }
 
+export interface StudioCopy {
+  uiTab: string
+  panelTitle: string
+  searchPlaceholder: string
+  colService: string
+  colTeam: string
+  colAction: string
+  verifyAction: string
+  verifiedLabel: string
+}
+
+export interface DeploySectionCopy {
+  heading: string
+  lead: string
+  archProxyTitle: string
+  archContainerSub: string
+  archTargetsTitle: string
+  specs: Array<{ label: string; value: string }>
+  composeLink: string
+  prodGuideLink: string
+  tabs: DeployTab[]
+}
+
 export interface SiteCopy {
   nav: {
     console: string
@@ -63,8 +86,12 @@ export interface SiteCopy {
     title: string
     tagline: string
     primaryCta: string
-    secondaryCta: string
+    githubCta: string
+    pullCommand: string
     openDemoHint: string
+    liveToggle: string
+    snapshotToggle: string
+    clickToInteract: string
   }
   workspaces: WorkspaceView[]
   opsStory: {
@@ -83,16 +110,11 @@ export interface SiteCopy {
   byo: {
     heading: string
     lead: string
-    points: string[]
     docsCta: string
     tabs: CodeTab[]
+    studio: StudioCopy
   }
-  deploy: {
-    heading: string
-    lead: string
-    facts: string[]
-    tabs: DeployTab[]
-  }
+  deploy: DeploySectionCopy
   closing: {
     heading: string
     cta: string
@@ -119,15 +141,16 @@ const CODE_TABS: CodeTab[] = [
 router = APIRouter()
 
 OWNERS = {
-    "payments": "payments-ops",
-    "checkout": "edge-sre",
+    "payments-api": "payments-ops",
+    "checkout-worker": "edge-sre",
+    "ingress-gateway": "platform-net",
 }
 
 @router.get("/owner")
 async def lookup_owner(service: str) -> dict[str, str]:
     team = OWNERS.get(service)
     if not team:
-        raise HTTPException(status_code=404, detail="Service not found")
+        raise HTTPException(status_code=404, detail="Not found")
     return {"service": service, "team": team}`,
   },
   {
@@ -153,21 +176,17 @@ async def lookup_owner(service: str) -> dict[str, str]:
     id: "workspace",
     filename: "workspace.tsx",
     language: "tsx",
-    code: `import { DataTable, PageHeader, Status, usePluginApi } from "@reliaforge/plugin-sdk"
+    code: `import { DataTable, PageHeader, useLocale, apiFetch } from "@reliaforge/plugin-sdk"
 
 export default function OwnershipPage() {
-  const { data, refresh } = usePluginApi<OwnerRow[]>("/owner/list")
-
   return (
     <div className="space-y-4">
-      <PageHeader title="Service Ownership" onRefresh={refresh} />
+      <PageHeader title="Service Ownership" />
       <DataTable
-        rows={data ?? []}
-        columns={[
-          { key: "service", header: "Service" },
-          { key: "team", header: "Owning team" },
-          { key: "state", header: "Status", render: (r) => <Status value={r.state} /> },
-        ]}
+        searchable
+        rows={rows}
+        rowKey={(r) => r.service}
+        columns={columns}
       />
     </div>
   )
@@ -175,68 +194,33 @@ export default function OwnershipPage() {
   },
 ]
 
-const DEPLOY_TABS: Record<Locale, DeployTab[]> = {
-  en: [
-    {
-      id: "docker",
-      label: "Single container",
-      language: "bash",
-      code: `git clone https://github.com/ReliaForge/reliaforge-plugins.git
-cd reliaforge-plugins
-docker build -f deploy/Dockerfile -t reliaforge-suite:local .
+const COMPOSE_YAML = `services:
+  reliaforge:
+    image: ghcr.io/reliaforge/reliaforge:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      RELIAFORGE_ENVIRONMENT: production
+      RELIAFORGE_HOST: 0.0.0.0
+      RELIAFORGE_AUTH_MODE: proxy
+      RELIAFORGE_PROXY_TRUSTED_NETWORKS: '["198.51.100.0/24"]'
+      RELIAFORGE_PROXY_SHARED_SECRET: "replace-with-32-char-random-secret-here"
+      RELIAFORGE_OPS_AUDIT_DB_PATH: /data/audit.sqlite3
+      RELIAFORGE_PROXMOX_API_URL: https://pve.example.com:8006
+    volumes:
+      - reliaforge-data:/data
 
-docker run --rm -p 8000:8000 \\
-  -e RELIAFORGE_AUTH_MODE=proxy \\
-  -e RELIAFORGE_TRUSTED_PROXIES='["198.51.100.0/24"]' \\
-  -e RELIAFORGE_PROXY_AUTH_SECRET="replace-with-strong-secret" \\
-  -e RELIAFORGE_PROXMOX_API_URL=https://pve.example.com:8006/api2/json \\
-  -v reliaforge-data:/data \\
-  reliaforge-suite:local`,
-    },
-    {
-      id: "local",
-      label: "Local Python dev",
-      language: "bash",
-      code: `git clone https://github.com/ReliaForge/reliaforge-backend.git
+volumes:
+  reliaforge-data:`
+
+const LOCAL_DEV_BASH = `git clone https://github.com/ReliaForge/reliaforge-backend.git
 cd reliaforge-backend
 python -m venv .venv && source .venv/bin/activate
 python -m pip install -e ".[dev]"
 
 reliaforge-scaffold my_tool --destination ./local-plugins
-RELIAFORGE_PLUGIN_PATHS=./local-plugins reliaforge`,
-    },
-  ],
-  zh: [
-    {
-      id: "docker",
-      label: "单容器运行",
-      language: "bash",
-      code: `git clone https://github.com/ReliaForge/reliaforge-plugins.git
-cd reliaforge-plugins
-docker build -f deploy/Dockerfile -t reliaforge-suite:local .
-
-docker run --rm -p 8000:8000 \\
-  -e RELIAFORGE_AUTH_MODE=proxy \\
-  -e RELIAFORGE_TRUSTED_PROXIES='["198.51.100.0/24"]' \\
-  -e RELIAFORGE_PROXY_AUTH_SECRET="replace-with-strong-secret" \\
-  -e RELIAFORGE_PROXMOX_API_URL=https://pve.example.com:8006/api2/json \\
-  -v reliaforge-data:/data \\
-  reliaforge-suite:local`,
-    },
-    {
-      id: "local",
-      label: "本地开发",
-      language: "bash",
-      code: `git clone https://github.com/ReliaForge/reliaforge-backend.git
-cd reliaforge-backend
-python -m venv .venv && source .venv/bin/activate
-python -m pip install -e ".[dev]"
-
-reliaforge-scaffold my_tool --destination ./local-plugins
-RELIAFORGE_PLUGIN_PATHS=./local-plugins reliaforge`,
-    },
-  ],
-}
+RELIAFORGE_PLUGIN_PATHS=./local-plugins reliaforge`
 
 export const COPY: Record<Locale, SiteCopy> = {
   en: {
@@ -257,8 +241,12 @@ export const COPY: Record<Locale, SiteCopy> = {
       tagline:
         "Inspect Proxmox hosts, tail Kubernetes logs, sync Argo CD apps, and silence alerts in one place. Mount your own Python scripts as plugins without building another login flow or frontend.",
       primaryCta: "Live demo",
-      secondaryCta: "Documentation",
-      openDemoHint: "Open demo",
+      githubCta: "GitHub",
+      pullCommand: "docker pull ghcr.io/reliaforge/reliaforge:latest",
+      openDemoHint: "Full screen",
+      liveToggle: "Interactive mode",
+      snapshotToggle: "Static view",
+      clickToInteract: "Click to interact live",
     },
     workspaces: [
       {
@@ -324,7 +312,7 @@ export const COPY: Record<Locale, SiteCopy> = {
             },
             {
               stage: "Proxy auth & origin check",
-              code: "X-ReliaForge-User: oncall@example.com  Sec-Fetch-Site: same-origin",
+              code: "X-ReliaForge-Identity: oncall@example.com  Sec-Fetch-Site: same-origin",
               latencyMs: 2,
             },
             {
@@ -376,7 +364,7 @@ export const COPY: Record<Locale, SiteCopy> = {
             },
             {
               stage: "Proxy auth",
-              code: "X-ReliaForge-User: oncall@example.com  argo_token=server_only",
+              code: "X-ReliaForge-Identity: oncall@example.com  argo_token=server_only",
               latencyMs: 2,
             },
             {
@@ -464,25 +452,39 @@ export const COPY: Record<Locale, SiteCopy> = {
     byo: {
       heading: "Bring your existing Python scripts.",
       lead:
-        "Wrap a FastAPI router and a Pydantic settings class as a plugin instead of maintaining separate auth, CORS, and frontend boilerplate for small internal tools.",
-      points: [
-        "Standard FastAPI routes and Pydantic settings; startup order and shutdown hooks are managed for you.",
-        "API-only plugins work immediately; add a custom screen with @reliaforge/plugin-sdk only if you want one.",
-        "Call shared Python helpers across plugins in-process, including ops_audit.",
-      ],
+        "Wrap a FastAPI router as a plugin and get proxy auth, console UI primitives, and shared SQLite audit out of the box.",
       docsCta: "Plugin development guide",
       tabs: CODE_TABS,
+      studio: {
+        uiTab: "Rendered UI",
+        panelTitle: "Service Ownership",
+        searchPlaceholder: "Filter services...",
+        colService: "Service",
+        colTeam: "Team",
+        colAction: "Check",
+        verifyAction: "Verify",
+        verifiedLabel: "OK",
+      },
     },
     deploy: {
       heading: "One container. No external database.",
       lead:
-        "Runs on a homelab host or a small Kubernetes deployment. A single Python process serves the compiled React console, REST APIs, SSE streams, and WebSockets.",
-      facts: [
-        "Set RELIAFORGE_CONSOLE_DIR to serve the UI and /api/v1 from the same origin.",
-        "Sits behind Envoy, Nginx, Caddy, or Cloudflare Access with trusted proxy CIDR checks.",
-        "Persists audit entries to a single SQLite file, or runs stateless with ops_audit disabled.",
+        "Pull the prebuilt GHCR image and run it with Docker Compose behind your reverse proxy.",
+      archProxyTitle: "Your Auth Proxy",
+      archContainerSub: "FastAPI + React console + 6 official plugins",
+      archTargetsTitle: "Upstreams & SQLite",
+      specs: [
+        { label: "Image", value: "ghcr.io/reliaforge/reliaforge:latest" },
+        { label: "Process", value: "Single Python container (UI + REST + SSE + WS)" },
+        { label: "Persistence", value: "/data/audit.sqlite3 (optional)" },
+        { label: "License", value: "MIT Open Source" },
       ],
-      tabs: DEPLOY_TABS.en,
+      composeLink: "deploy/compose.yaml on GitHub",
+      prodGuideLink: "Production deployment guide",
+      tabs: [
+        { id: "compose", label: "compose.yaml", language: "yaml", code: COMPOSE_YAML },
+        { id: "local", label: "Local Python dev", language: "bash", code: LOCAL_DEV_BASH },
+      ],
     },
     closing: {
       heading: "Try the interactive demo in your browser.",
@@ -517,8 +519,12 @@ export const COPY: Record<Locale, SiteCopy> = {
       tagline:
         "在同一个网页里看 Proxmox、查 K8s 日志、同步 Argo CD、静默告警；手头现成的 Python 运维脚本也能直接挂进来跑，不用再单写登录和前端。",
       primaryCta: "在线演示",
-      secondaryCta: "阅读文档",
-      openDemoHint: "打开在线演示",
+      githubCta: "GitHub",
+      pullCommand: "docker pull ghcr.io/reliaforge/reliaforge:latest",
+      openDemoHint: "全屏演示",
+      liveToggle: "框内实操",
+      snapshotToggle: "静态截图",
+      clickToInteract: "点击直接在框内交互",
     },
     workspaces: [
       {
@@ -584,7 +590,7 @@ export const COPY: Record<Locale, SiteCopy> = {
             },
             {
               stage: "代理鉴权与同源校验",
-              code: "X-ReliaForge-User: oncall@example.com  Sec-Fetch-Site: same-origin",
+              code: "X-ReliaForge-Identity: oncall@example.com  Sec-Fetch-Site: same-origin",
               latencyMs: 2,
             },
             {
@@ -636,7 +642,7 @@ export const COPY: Record<Locale, SiteCopy> = {
             },
             {
               stage: "代理鉴权",
-              code: "X-ReliaForge-User: oncall@example.com  argo_token=server_only",
+              code: "X-ReliaForge-Identity: oncall@example.com  argo_token=server_only",
               latencyMs: 2,
             },
             {
@@ -724,25 +730,38 @@ export const COPY: Record<Locale, SiteCopy> = {
     byo: {
       heading: "手头的 Python 脚本，加个路由就能挂进来。",
       lead:
-        "不用为了几十行内部查询或排障脚本单独维护登录、跨域和前端表格。写成 FastAPI 路由和 Pydantic 配置类，剩下的交给宿主进程。",
-      points: [
-        "直接写标准 FastAPI 路由与配置类，依赖顺序、环境变量加载和停机清理自动接管。",
-        "纯接口插件开箱即用；需要自定义页面时再用 @reliaforge/plugin-sdk 构建前端模块。",
-        "同进程内可直接调用其他插件注册的 Python 服务（如写入 ops_audit 审计）。",
-      ],
+        "把 FastAPI 路由包成插件，直接复用反向代理认证、@reliaforge/plugin-sdk 表格原语与共享审计库。",
       docsCta: "插件开发指南",
       tabs: CODE_TABS,
+      studio: {
+        uiTab: "渲染界面",
+        panelTitle: "服务归属目录",
+        searchPlaceholder: "筛选服务...",
+        colService: "服务",
+        colTeam: "负责组",
+        colAction: "巡检",
+        verifyAction: "核验",
+        verifiedLabel: "已核验",
+      },
     },
     deploy: {
       heading: "单容器运行，不绑外部数据库。",
-      lead:
-        "跑在 Homelab 单机或 K8s Deployment 里都行。单个 Python 进程同时提供静态前端、REST 接口、SSE 日志流和 WebSocket 终端。",
-      facts: [
-        "设置 RELIAFORGE_CONSOLE_DIR 即可同源提供编译后的前端页面与 /api/v1 接口。",
-        "直接挂在 Envoy、Nginx、Caddy 或 Cloudflare Access 后面做反向代理认证。",
-        "持久化只有单个本地 SQLite 文件；关掉 ops_audit 可完全无状态运行。",
+      lead: "直接拉取 GHCR 预构建镜像，用一份 compose.yaml 挂在现有反向代理后面即可上线。",
+      archProxyTitle: "认证反向代理",
+      archContainerSub: "单进程承载 React 前端 + FastAPI + 六个插件",
+      archTargetsTitle: "上游集群与本地审计",
+      specs: [
+        { label: "官方镜像", value: "ghcr.io/reliaforge/reliaforge:latest" },
+        { label: "运行形态", value: "单 Python 容器（同源页面 / REST / SSE / WS）" },
+        { label: "持久化", value: "/data/audit.sqlite3（可选）" },
+        { label: "开源协议", value: "MIT License" },
       ],
-      tabs: DEPLOY_TABS.zh,
+      composeLink: "查看 deploy/compose.yaml",
+      prodGuideLink: "生产部署指南",
+      tabs: [
+        { id: "compose", label: "compose.yaml", language: "yaml", code: COMPOSE_YAML },
+        { id: "local", label: "本地开发", language: "bash", code: LOCAL_DEV_BASH },
+      ],
     },
     closing: {
       heading: "先在浏览器里试一圈内置演示。",
