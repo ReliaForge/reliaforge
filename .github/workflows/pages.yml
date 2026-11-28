@@ -1,4 +1,4 @@
-name: Site CI and Pages
+name: Website CI and Pages
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: site-ci-${{ github.ref }}
+  group: web-ci-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
@@ -32,7 +32,6 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run test:unit
-      - run: npm run check:i18n
       - run: npm run build
       - run: npm run check:hygiene
 
@@ -52,7 +51,7 @@ jobs:
       - if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: site-playwright-report
+          name: web-playwright-report
           path: |
             playwright-report/
             test-results/
@@ -74,7 +73,7 @@ jobs:
       - run: npm run build
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: docs/.vitepress/dist
+          path: dist
 
   deploy:
     name: Deploy Pages

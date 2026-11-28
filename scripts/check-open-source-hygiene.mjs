@@ -5,21 +5,13 @@ import { fileURLToPath } from "node:url"
 const IGNORED_DIRECTORIES = new Set([".git", "node_modules", "dist", "coverage", "playwright-report", "test-results"])
 const SAFE_EMAIL_DOMAINS = new Set(["example.com", "users.noreply.github.com"])
 const EXACT_ALLOWLIST = [
-  {
-    rule: "binary-file",
-    path: "docs/public/mark.png",
-    reason: "reviewed public ReliaForge brand asset",
-  },
-  {
-    rule: "binary-file",
-    path: "docs/public/console-preview.png",
-    reason: "reviewed public ReliaForge console capture",
-  },
-  {
-    rule: "binary-file",
-    path: "docs/public/og-preview.png",
-    reason: "reviewed public ReliaForge social preview",
-  },
+  { rule: "binary-file", path: "public/mark.png", reason: "reviewed public ReliaForge brand mark" },
+  { rule: "binary-file", path: "public/og-preview.png", reason: "reviewed public ReliaForge social preview" },
+  { rule: "binary-file", path: "public/views/view-overview.png", reason: "reviewed public ReliaForge console overview capture" },
+  { rule: "binary-file", path: "public/views/view-proxmox.png", reason: "reviewed public ReliaForge Proxmox workspace capture" },
+  { rule: "binary-file", path: "public/views/view-kubernetes.png", reason: "reviewed public ReliaForge Kubernetes workspace capture" },
+  { rule: "binary-file", path: "public/views/view-gitops.png", reason: "reviewed public ReliaForge GitOps workspace capture" },
+  { rule: "binary-file", path: "public/views/view-observability.png", reason: "reviewed public ReliaForge Observability workspace capture" },
   {
     rule: "nonpublic-email",
     path: "package-lock.json",
@@ -66,9 +58,7 @@ function walk(root, scanRoot = root) {
   const files = []
   for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
     const fullPath = path.join(root, entry.name)
-    const relativePath = path.relative(scanRoot, fullPath).replaceAll("\\", "/")
-    const isGeneratedRootCache = entry.isDirectory() && relativePath === ".vitepress"
-    if (entry.isDirectory() && (IGNORED_DIRECTORIES.has(entry.name) || isGeneratedRootCache)) continue
+    if (entry.isDirectory() && IGNORED_DIRECTORIES.has(entry.name)) continue
     if (entry.isDirectory()) files.push(...walk(fullPath, scanRoot))
     else if (entry.isFile()) files.push(fullPath)
   }

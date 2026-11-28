@@ -1,8 +1,0 @@
-export default {
-  config: {
-    MD013: false,
-    MD024: { siblings_only: true },
-    MD033: false,
-    MD041: false,
-  },
-}
