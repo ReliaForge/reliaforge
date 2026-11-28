@@ -1,9 +1,10 @@
 import { expect, test } from "@playwright/test"
 
-test("English landing page switches interactive console views, action traces, and code tabs", async ({ page }) => {
-  await page.goto("/?lang=en")
+test("English landing page switches interactive console views, themes, action traces, and code tabs", async ({ page }) => {
+  await page.goto("/?lang=en&theme=dark")
 
   await expect(page.locator("html")).toHaveAttribute("lang", "en-US")
+  await expect(page.locator("html")).toHaveClass(/dark/)
   await expect(
     page.getByRole("heading", { name: "One console for your servers, clusters, and scripts.", level: 1 }),
   ).toBeVisible()
@@ -17,27 +18,37 @@ test("English landing page switches interactive console views, action traces, an
     "https://docs.reliaforge.dev/",
   )
 
-  // Switch interactive console workbench tab
+  // Switch interactive console workbench tab in dark mode
   await page.getByRole("tab", { name: "Proxmox VE" }).click()
-  await expect(page.getByRole("img", { name: /ReliaForge Proxmox VE workspace/ })).toBeVisible()
+  const proxmoxImg = page.getByRole("img", { name: /ReliaForge Proxmox VE workspace/ })
+  await expect(proxmoxImg).toBeVisible()
+  await expect(proxmoxImg).toHaveAttribute("src", "/views/view-proxmox.png")
 
-  // Switch interactive 2 a.m. safety trace scenario
+  // Toggle to light mode and verify screenshot + html class switch cleanly
+  await page.getByTestId("theme-toggle").click()
+  await expect(page.locator("html")).not.toHaveClass(/dark/)
+  await expect(proxmoxImg).toHaveAttribute("src", "/views/view-proxmox-light.png")
+
+  // Switch interactive 2 a.m. safety trace scenario and replay
   await page.getByRole("tab", { name: "Open LXC Shell" }).click()
   await expect(page.getByText(/WS \/api\/v1\/plugins\/proxmox/)).toBeVisible()
+  await page.getByRole("button", { name: "Replay trace" }).click()
+  await expect(page.getByText(/ops_audit -> actor=oncall/)).toBeVisible()
 
   // Switch BYO Python code tab
   await page.getByRole("tab", { name: "workspace.tsx" }).click()
-  await expect(page.getByText(/usePluginApi/)).toBeVisible()
+  await expect(page.getByText(/usePluginApi/).first()).toBeVisible()
 })
 
-test("Chinese landing page renders localized copy and destinations cleanly", async ({ page }) => {
-  await page.goto("/?lang=zh")
+test("Chinese landing page renders localized copy and light mode cleanly", async ({ page }) => {
+  await page.goto("/?lang=zh&theme=light")
 
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN")
+  await expect(page.locator("html")).not.toHaveClass(/dark/)
   await expect(
     page.getByRole("heading", { name: "一个控制台，管完集群和你的脚本。", level: 1 }),
   ).toBeVisible()
-  await expect(page.getByRole("link", { name: "在线体验" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "在线体验", exact: true })).toHaveAttribute(
     "href",
     "https://demo.reliaforge.dev/?lang=zh",
   )
@@ -45,15 +56,22 @@ test("Chinese landing page renders localized copy and destinations cleanly", asy
     "href",
     "https://docs.reliaforge.dev/zh/",
   )
+  await expect(page.getByRole("img", { name: /ReliaForge 总览界面/ })).toHaveAttribute(
+    "src",
+    "/views/view-overview-light.png",
+  )
 })
 
-test("language switcher toggles between EN and ZH without overflow", async ({ page }) => {
-  await page.goto("/?lang=en")
+test("language and theme switchers work without horizontal overflow", async ({ page }) => {
+  await page.goto("/?lang=en&theme=light")
   await page.getByRole("radio", { name: "中文" }).click()
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN")
   await expect(
     page.getByRole("heading", { name: "一个控制台，管完集群和你的脚本。", level: 1 }),
   ).toBeVisible()
+
+  await page.getByTestId("theme-toggle").click()
+  await expect(page.locator("html")).toHaveClass(/dark/)
 
   const sizes = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,

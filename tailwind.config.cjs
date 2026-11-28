@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
@@ -22,17 +23,20 @@ module.exports = {
         ],
       },
       colors: {
-        obsidian: "#090b0f",
-        panel: "#0f1218",
-        surface: "#151923",
-        hairline: "#202634",
-        "hairline-strong": "#30394d",
-        ink: "#f2f5fa",
-        muted: "#9aa5b8",
-        subtle: "#7c879b",
-        signal: "#34d399",
-        "signal-hover": "#4ade80",
-        cyan: "#38bdf8",
+        obsidian: "rgb(var(--bg-canvas) / <alpha-value>)",
+        panel: "rgb(var(--bg-panel) / <alpha-value>)",
+        surface: "rgb(var(--bg-surface) / <alpha-value>)",
+        hairline: "rgb(var(--border-hairline) / <alpha-value>)",
+        "hairline-strong": "rgb(var(--border-hairline-strong) / <alpha-value>)",
+        ink: "rgb(var(--text-ink) / <alpha-value>)",
+        muted: "rgb(var(--text-muted) / <alpha-value>)",
+        subtle: "rgb(var(--text-subtle) / <alpha-value>)",
+        signal: "rgb(var(--accent-signal) / <alpha-value>)",
+        "signal-hover": "rgb(var(--accent-signal-hover) / <alpha-value>)",
+        "signal-ink": "rgb(var(--accent-signal-ink) / <alpha-value>)",
+        cyan: "rgb(var(--accent-cyan) / <alpha-value>)",
+        "code-bg": "rgb(var(--code-bg) / <alpha-value>)",
+        "code-ink": "rgb(var(--code-ink) / <alpha-value>)",
       },
     },
   },

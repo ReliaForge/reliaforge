@@ -24,6 +24,30 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script>
+      ;(() => {
+        try {
+          const params = new URLSearchParams(window.location.search)
+          const q = params.get("theme")
+          const stored = window.localStorage.getItem("rf.web.theme")
+          const prefersDark =
+            window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+          const theme =
+            q === "light" || q === "dark"
+              ? q
+              : stored === "light" || stored === "dark"
+                ? stored
+                : prefersDark
+                  ? "dark"
+                  : "light"
+          document.documentElement.classList.toggle("dark", theme === "dark")
+          const meta = document.querySelector('meta[name="theme-color"]')
+          if (meta) meta.setAttribute("content", theme === "dark" ? "#090b0f" : "#f6f8fb")
+        } catch {
+          document.documentElement.classList.add("dark")
+        }
+      })()
+    </script>
   </head>
   <body class="bg-obsidian text-ink antialiased selection:bg-signal/25 selection:text-ink">
     <div id="root"></div>

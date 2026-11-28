@@ -12,6 +12,11 @@ const EXACT_ALLOWLIST = [
   { rule: "binary-file", path: "public/views/view-kubernetes.png", reason: "reviewed public ReliaForge Kubernetes workspace capture" },
   { rule: "binary-file", path: "public/views/view-gitops.png", reason: "reviewed public ReliaForge GitOps workspace capture" },
   { rule: "binary-file", path: "public/views/view-observability.png", reason: "reviewed public ReliaForge Observability workspace capture" },
+  { rule: "binary-file", path: "public/views/view-overview-light.png", reason: "reviewed public ReliaForge light-mode console overview capture" },
+  { rule: "binary-file", path: "public/views/view-proxmox-light.png", reason: "reviewed public ReliaForge light-mode Proxmox workspace capture" },
+  { rule: "binary-file", path: "public/views/view-kubernetes-light.png", reason: "reviewed public ReliaForge light-mode Kubernetes workspace capture" },
+  { rule: "binary-file", path: "public/views/view-gitops-light.png", reason: "reviewed public ReliaForge light-mode GitOps workspace capture" },
+  { rule: "binary-file", path: "public/views/view-observability-light.png", reason: "reviewed public ReliaForge light-mode Observability workspace capture" },
   {
     rule: "nonpublic-email",
     path: "package-lock.json",

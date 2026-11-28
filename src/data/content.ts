@@ -1,4 +1,8 @@
+import type { SnippetLanguage } from "../components/SyntaxCode"
+
 export type Locale = "en" | "zh"
+
+export type ThemeMode = "light" | "dark"
 
 export type WorkspaceViewId = "overview" | "proxmox" | "kubernetes" | "gitops" | "observability"
 
@@ -6,7 +10,8 @@ export interface WorkspaceView {
   id: WorkspaceViewId
   label: string
   route: string
-  src: string
+  srcLight: string
+  srcDark: string
   alt: string
   caption: string
 }
@@ -18,6 +23,7 @@ export interface SafetyScenario {
     stage: string
     detail: string
     code: string
+    latencyMs: number
   }>
 }
 
@@ -31,13 +37,14 @@ export interface PluginEntry {
 export interface CodeTab {
   id: string
   filename: string
-  language: string
+  language: SnippetLanguage
   code: string
 }
 
 export interface DeployTab {
   id: string
   label: string
+  language: SnippetLanguage
   code: string
 }
 
@@ -51,6 +58,8 @@ export interface SiteCopy {
     github: string
     docsUrl: string
     demoUrl: string
+    switchToLight: string
+    switchToDark: string
   }
   hero: {
     title: string
@@ -63,6 +72,7 @@ export interface SiteCopy {
   opsStory: {
     heading: string
     lead: string
+    replayTrace: string
     rails: Array<{ title: string; detail: string }>
     scenarios: SafetyScenario[]
   }
@@ -174,6 +184,7 @@ const DEPLOY_TABS: Record<Locale, DeployTab[]> = {
     {
       id: "docker",
       label: "Single container",
+      language: "bash",
       code: `git clone https://github.com/ReliaForge/reliaforge-plugins.git
 cd reliaforge-plugins
 docker build -f deploy/Dockerfile -t reliaforge-suite:local .
@@ -189,6 +200,7 @@ docker run --rm -p 8000:8000 \\
     {
       id: "local",
       label: "Local Python dev",
+      language: "bash",
       code: `git clone https://github.com/ReliaForge/reliaforge-backend.git
 cd reliaforge-backend
 python -m venv .venv && source .venv/bin/activate
@@ -203,6 +215,7 @@ RELIAFORGE_PLUGIN_PATHS=./local-plugins reliaforge`,
     {
       id: "docker",
       label: "单容器部署",
+      language: "bash",
       code: `git clone https://github.com/ReliaForge/reliaforge-plugins.git
 cd reliaforge-plugins
 docker build -f deploy/Dockerfile -t reliaforge-suite:local .
@@ -218,6 +231,7 @@ docker run --rm -p 8000:8000 \\
     {
       id: "local",
       label: "本地 Python 开发",
+      language: "bash",
       code: `git clone https://github.com/ReliaForge/reliaforge-backend.git
 cd reliaforge-backend
 python -m venv .venv && source .venv/bin/activate
@@ -241,6 +255,8 @@ export const COPY: Record<Locale, SiteCopy> = {
       github: "GitHub",
       docsUrl: "https://docs.reliaforge.dev/",
       demoUrl: "https://demo.reliaforge.dev/",
+      switchToLight: "Switch to light mode",
+      switchToDark: "Switch to dark mode",
     },
     hero: {
       title: "One console for your servers, clusters, and scripts.",
@@ -255,8 +271,9 @@ export const COPY: Record<Locale, SiteCopy> = {
         id: "overview",
         label: "Overview",
         route: "/",
-        src: "/views/view-overview.png",
-        alt: "ReliaForge dark-mode overview showing Proxmox capacity, Kubernetes pods, GitOps sync health, topology, and service catalog",
+        srcLight: "/views/view-overview-light.png",
+        srcDark: "/views/view-overview.png",
+        alt: "ReliaForge overview showing Proxmox capacity, Kubernetes pods, GitOps sync health, topology, and service catalog",
         caption:
           "Hypervisor capacity, VM-to-Kubernetes node topology, GitOps sync health, and your service catalog in one glance.",
       },
@@ -264,7 +281,8 @@ export const COPY: Record<Locale, SiteCopy> = {
         id: "proxmox",
         label: "Proxmox VE",
         route: "/p/proxmox",
-        src: "/views/view-proxmox.png",
+        srcLight: "/views/view-proxmox-light.png",
+        srcDark: "/views/view-proxmox.png",
         alt: "ReliaForge Proxmox VE workspace showing RRD performance graphs, storage pools, and QEMU/LXC inventory",
         caption:
           "Node RRD sparklines, storage pools, QEMU/LXC search, allowlisted power controls, and a browser LXC shell.",
@@ -273,7 +291,8 @@ export const COPY: Record<Locale, SiteCopy> = {
         id: "kubernetes",
         label: "Kubernetes",
         route: "/p/kubernetes",
-        src: "/views/view-kubernetes.png",
+        srcLight: "/views/view-kubernetes-light.png",
+        srcDark: "/views/view-kubernetes.png",
         alt: "ReliaForge Kubernetes workspace showing cluster nodes, workloads, GitOps linkage, and container images",
         caption:
           "Cluster nodes, deployments, pods, events, live SSE pod logs, container exec, and rolling restarts.",
@@ -282,7 +301,8 @@ export const COPY: Record<Locale, SiteCopy> = {
         id: "gitops",
         label: "Argo CD",
         route: "/p/gitops_argocd",
-        src: "/views/view-gitops.png",
+        srcLight: "/views/view-gitops-light.png",
+        srcDark: "/views/view-gitops.png",
         alt: "ReliaForge GitOps workspace listing Argo CD applications, sync states, health, and Git revisions",
         caption:
           "Argo CD application sync states, deployed Git SHAs, resource trees, and guarded manual sync triggers.",
@@ -291,7 +311,8 @@ export const COPY: Record<Locale, SiteCopy> = {
         id: "observability",
         label: "Observability",
         route: "/p/observability",
-        src: "/views/view-observability.png",
+        srcLight: "/views/view-observability-light.png",
+        srcDark: "/views/view-observability.png",
         alt: "ReliaForge Observability workspace querying Loki log streams alongside Prometheus and Alertmanager health",
         caption:
           "Loki log queries, Prometheus metrics, and Alertmanager alert silences without opening three separate dashboards.",
@@ -301,6 +322,7 @@ export const COPY: Record<Locale, SiteCopy> = {
       heading: "Stop tab-hopping at 2 a.m.",
       lead:
         "When an alert wakes you up, the worst part is juggling Proxmox in tab one, kubectl in a terminal, Argo CD in tab three, and three forgotten Flask scripts nobody dares touch. ReliaForge folds daily infrastructure ops and your own Python tools behind one login, with safety rails on every write.",
+      replayTrace: "Replay trace",
       rails: [
         {
           title: "One proxy, zero browser secrets",
@@ -327,21 +349,25 @@ export const COPY: Record<Locale, SiteCopy> = {
               stage: "Operator request",
               detail: "Console triggers a rolling restart intent from the Kubernetes workloads table.",
               code: "POST /api/v1/plugins/kubernetes/workloads/payments/payments-api/restart",
+              latencyMs: 3,
             },
             {
               stage: "Proxy auth and origin check",
               detail: "Backend verifies trusted proxy CIDR, shared secret, operator header, and same-origin headers.",
               code: "X-ReliaForge-User: oncall@example.com  Sec-Fetch-Site: same-origin",
+              latencyMs: 2,
             },
             {
               stage: "Namespace allowlist and confirmation",
               detail: "Checks payments is in ALLOWED_ACTION_NAMESPACES and redeems the short-lived confirmation token.",
               code: "allowlist=payments  intent_token=verified  risk=medium",
+              latencyMs: 4,
             },
             {
               stage: "SQLite audit recorded",
               detail: "Patches Kubernetes pod template annotation and writes an append-only row into ops_audit.",
               code: "ops_audit -> actor=oncall  action=k8s.rollout_restart  outcome=succeeded",
+              latencyMs: 14,
             },
           ],
         },
@@ -353,21 +379,25 @@ export const COPY: Record<Locale, SiteCopy> = {
               stage: "WebSocket upgrade",
               detail: "Terminal drawer opens an authenticated WebSocket session to an LXC container.",
               code: "WS /api/v1/plugins/proxmox/nodes/pve-prod-01/lxc/201/terminal",
+              latencyMs: 4,
             },
             {
               stage: "Unified WebSocket proxy auth",
               detail: "Validates proxy peer IP, shared secret, and Origin header before accepting the upgrade.",
               code: "peer=198.51.100.10  origin=https://ops.example.com  status=accepted",
+              latencyMs: 2,
             },
             {
               stage: "VMID policy and ticket exchange",
               detail: "Verifies VMID 201 is allowlisted and requests a short-lived PVE termproxy ticket server-side.",
               code: "vmid=201  pve_ticket=server_only  termproxy=connected",
+              latencyMs: 22,
             },
             {
               stage: "Session logged",
               detail: "Streams xterm.js I/O cleanly and records session open and close timestamps in ops_audit.",
               code: "ops_audit -> actor=oncall  action=proxmox.lxc_terminal  target=lxc/201",
+              latencyMs: 5,
             },
           ],
         },
@@ -379,21 +409,25 @@ export const COPY: Record<Locale, SiteCopy> = {
               stage: "Operator request",
               detail: "Triggers a manual sync on an OutOfSync application directly from the GitOps workspace.",
               code: "POST /api/v1/plugins/gitops_argocd/applications/payments-api/sync",
+              latencyMs: 3,
             },
             {
               stage: "Proxy auth and origin check",
               detail: "Authenticates the operator at the backend boundary without exposing the Argo CD API token.",
               code: "X-ReliaForge-User: oncall@example.com  argo_token=server_only",
+              latencyMs: 2,
             },
             {
               stage: "Read-only guard and confirmation",
               detail: "Verifies write actions are enabled and checks confirmation intent before calling Argo CD.",
               code: "read_only=false  prune=false  intent_token=verified",
+              latencyMs: 4,
             },
             {
               stage: "Sync tracked and audited",
               detail: "Submits sync to Argo CD and stores revision, target app, and operator in ops_audit.",
               code: "ops_audit -> actor=oncall  action=argocd.sync  rev=8f4c2a1",
+              latencyMs: 18,
             },
           ],
         },
@@ -405,21 +439,25 @@ export const COPY: Record<Locale, SiteCopy> = {
               stage: "Operator request",
               detail: "Creates a 2-hour maintenance silence straight from a firing Alertmanager alert.",
               code: "POST /api/v1/plugins/observability/silences",
+              latencyMs: 3,
             },
             {
               stage: "Proxy auth and origin check",
               detail: "Attributes the silence creator directly to the authenticated proxy identity.",
               code: "createdBy=oncall@example.com  Sec-Fetch-Site: same-origin",
+              latencyMs: 2,
             },
             {
               stage: "Matcher validation",
               detail: "Validates alert matchers, duration bounds, and non-empty comment before posting upstream.",
               code: "alertname=NodeDiskMaintenance  duration=2h  comment=verified",
+              latencyMs: 3,
             },
             {
               stage: "Silence active and audited",
               detail: "Returns the Alertmanager silence ID and logs the mutation into ops_audit.",
               code: "ops_audit -> actor=oncall  action=observability.silence_create",
+              latencyMs: 11,
             },
           ],
         },
@@ -525,8 +563,8 @@ export const COPY: Record<Locale, SiteCopy> = {
     closing: {
       heading: "Kick the tires in the browser, then run it on your stack.",
       lead:
-        "The online demo runs on preset data with zero setup. When you are ready to hook up Proxmox, Kubernetes, or your own Python plugin, grab the docs.",
-      cta: "Open read-only demo",
+        "Click through all six plugin workspaces, simulated LXC shell, and live log streams right in the browser. Ready for real clusters? Grab the docs.",
+      cta: "Open interactive demo",
     },
     footer: {
       docs: "Documentation",
@@ -549,6 +587,8 @@ export const COPY: Record<Locale, SiteCopy> = {
       github: "GitHub",
       docsUrl: "https://docs.reliaforge.dev/zh/",
       demoUrl: "https://demo.reliaforge.dev/?lang=zh",
+      switchToLight: "切换到浅色模式",
+      switchToDark: "切换到深色模式",
     },
     hero: {
       title: "一个控制台，管完集群和你的脚本。",
@@ -563,15 +603,17 @@ export const COPY: Record<Locale, SiteCopy> = {
         id: "overview",
         label: "全局总览",
         route: "/",
-        src: "/views/view-overview.png",
-        alt: "ReliaForge 暗色总览界面，展示 Proxmox 容量、Kubernetes Pod 状态、GitOps 同步健康度、拓扑与服务目录",
+        srcLight: "/views/view-overview-light.png",
+        srcDark: "/views/view-overview.png",
+        alt: "ReliaForge 总览界面，展示 Proxmox 容量、Kubernetes Pod 状态、GitOps 同步健康度、拓扑与服务目录",
         caption: "宿主机容量、虚拟机到 K8s 节点的映射拓扑、GitOps 同步健康度与常用服务入口一屏汇总。",
       },
       {
         id: "proxmox",
         label: "Proxmox VE",
         route: "/p/proxmox",
-        src: "/views/view-proxmox.png",
+        srcLight: "/views/view-proxmox-light.png",
+        srcDark: "/views/view-proxmox.png",
         alt: "ReliaForge Proxmox VE 工作区，展示 RRD 趋势图、存储池与 QEMU/LXC 列表",
         caption: "节点 RRD 曲线、存储池余量、QEMU/LXC 检索、白名单电源操作，以及网页直连 LXC 终端。",
       },
@@ -579,7 +621,8 @@ export const COPY: Record<Locale, SiteCopy> = {
         id: "kubernetes",
         label: "Kubernetes",
         route: "/p/kubernetes",
-        src: "/views/view-kubernetes.png",
+        srcLight: "/views/view-kubernetes-light.png",
+        srcDark: "/views/view-kubernetes.png",
         alt: "ReliaForge Kubernetes 工作区，展示节点负载、Deployment 工作负载、GitOps 关联与镜像版本",
         caption: "节点与工作负载巡检、SSE 实时追踪 Pod 日志、打开容器 Exec 终端以及受控滚动重启。",
       },
@@ -587,7 +630,8 @@ export const COPY: Record<Locale, SiteCopy> = {
         id: "gitops",
         label: "Argo CD",
         route: "/p/gitops_argocd",
-        src: "/views/view-gitops.png",
+        srcLight: "/views/view-gitops-light.png",
+        srcDark: "/views/view-gitops.png",
         alt: "ReliaForge GitOps 工作区，展示 Argo CD 应用同步状态、健康度与 Git 提交哈希",
         caption: "集中查看 Argo CD 应用同步状态、线上 Git Revision 与资源树，发现漂移随时触发受控同步。",
       },
@@ -595,7 +639,8 @@ export const COPY: Record<Locale, SiteCopy> = {
         id: "observability",
         label: "日志与告警",
         route: "/p/observability",
-        src: "/views/view-observability.png",
+        srcLight: "/views/view-observability-light.png",
+        srcDark: "/views/view-observability.png",
         alt: "ReliaForge 可观测性工作区，集中查询 Loki 日志流并查看 Prometheus 与 Alertmanager 状态",
         caption: "在同一个页面查 Loki 日志、看 Prometheus 指标并管理 Alertmanager 告警静默，告别来回切面板。",
       },
@@ -604,6 +649,7 @@ export const COPY: Record<Locale, SiteCopy> = {
       heading: "凌晨两点排障，别在八个标签页里横跳。",
       lead:
         "半夜被告警叫醒时，最耗心神的往往不是修问题本身，而是在 Proxmox、终端、Argo CD、日志面板以及三个没人敢随便重启的内部脚本之间疯狂切窗口。ReliaForge 把日常基础设施视图和团队 Python 工具收进同一道认证门后，所有高危写操作都带防手滑护栏。",
+      replayTrace: "重放链路",
       rails: [
         {
           title: "一层代理鉴权，浏览器零密钥",
@@ -627,21 +673,25 @@ export const COPY: Record<Locale, SiteCopy> = {
               stage: "发起操作意图",
               detail: "值班人员在 Kubernetes 工作负载列表中对异常服务发起滚动重启。",
               code: "POST /api/v1/plugins/kubernetes/workloads/payments/payments-api/restart",
+              latencyMs: 3,
             },
             {
               stage: "代理鉴权与来源校验",
               detail: "后端核验可信代理网段、代理共享密钥、用户身份头与浏览器同源请求头。",
               code: "X-ReliaForge-User: oncall@example.com  Sec-Fetch-Site: same-origin",
+              latencyMs: 2,
             },
             {
               stage: "命名空间白名单与二次确认",
               detail: "校验 payments 位于 ALLOWED_ACTION_NAMESPACES 白名单内并核销短时确认令牌。",
               code: "allowlist=payments  intent_token=verified  risk=medium",
+              latencyMs: 4,
             },
             {
               stage: "落库 SQLite 审计",
               detail: "更新 Pod 模板触发滚动重启，并向 ops_audit 写入只追加审计记录。",
               code: "ops_audit -> actor=oncall  action=k8s.rollout_restart  outcome=succeeded",
+              latencyMs: 14,
             },
           ],
         },
@@ -653,21 +703,25 @@ export const COPY: Record<Locale, SiteCopy> = {
               stage: "发起 WebSocket 握手",
               detail: "在 Proxmox 页面抽屉中一键打开目标 LXC 容器的网页终端连接。",
               code: "WS /api/v1/plugins/proxmox/nodes/pve-prod-01/lxc/201/terminal",
+              latencyMs: 4,
             },
             {
               stage: "统一 WebSocket 代理鉴权",
               detail: "在同意协议升级前完成代理对端 IP、共享密钥与 Origin 来源校验。",
               code: "peer=198.51.100.10  origin=https://ops.example.com  status=accepted",
+              latencyMs: 2,
             },
             {
               stage: "VMID 策略与服务端换票",
               detail: "确认 VMID 201 在白名单内后，仅由后端向 PVE 申请短时 termproxy 票据。",
               code: "vmid=201  pve_ticket=server_only  termproxy=connected",
+              latencyMs: 22,
             },
             {
               stage: "会话留痕",
               detail: "通过 xterm.js 转发终端交互，并在 ops_audit 中记录会话建立与关闭时间。",
               code: "ops_audit -> actor=oncall  action=proxmox.lxc_terminal  target=lxc/201",
+              latencyMs: 5,
             },
           ],
         },
@@ -679,21 +733,25 @@ export const COPY: Record<Locale, SiteCopy> = {
               stage: "发起同步请求",
               detail: "在 GitOps 页面发现配置漂移后，直接触发单应用同步。",
               code: "POST /api/v1/plugins/gitops_argocd/applications/payments-api/sync",
+              latencyMs: 3,
             },
             {
               stage: "代理鉴权与凭据隔离",
               detail: "后端确认操作者身份后代发上游请求，前端全程不接触 Argo CD Token。",
               code: "X-ReliaForge-User: oncall@example.com  argo_token=server_only",
+              latencyMs: 2,
             },
             {
               stage: "只读开关与确认校验",
               detail: "确认未处于只读模式并校验二次确认令牌，默认不触发误删资源的 prune。",
               code: "read_only=false  prune=false  intent_token=verified",
+              latencyMs: 4,
             },
             {
               stage: "记录交付审计",
               detail: "调用 Argo CD 同步并将提交哈希、目标应用与操作人记入 ops_audit。",
               code: "ops_audit -> actor=oncall  action=argocd.sync  rev=8f4c2a1",
+              latencyMs: 18,
             },
           ],
         },
@@ -705,21 +763,25 @@ export const COPY: Record<Locale, SiteCopy> = {
               stage: "发起静默请求",
               detail: "维护窗口期间在触发中的告警旁直接创建 2 小时 Alertmanager 静默。",
               code: "POST /api/v1/plugins/observability/silences",
+              latencyMs: 3,
             },
             {
               stage: "操作者身份绑定",
               detail: "静默创建人自动绑定到代理认证头中的真实操作者身份，无法冒填。",
               code: "createdBy=oncall@example.com  Sec-Fetch-Site: same-origin",
+              latencyMs: 2,
             },
             {
               stage: "匹配规则与备注校验",
               detail: "校验标签匹配器、时长上限与静默原因，拦截过于宽泛的误静默。",
               code: "alertname=NodeDiskMaintenance  duration=2h  comment=verified",
+              latencyMs: 3,
             },
             {
               stage: "静默生效并审计",
               detail: "返回 Alertmanager Silence ID，同时在本地审计表留下变更记录。",
               code: "ops_audit -> actor=oncall  action=observability.silence_create",
+              latencyMs: 11,
             },
           ],
         },
@@ -811,8 +873,8 @@ export const COPY: Record<Locale, SiteCopy> = {
     },
     closing: {
       heading: "先去在线演示逛两分钟，顺手就能在自己环境拉起。",
-      lead: "只读演示使用预设数据，打开即看；准备接入自己的 Proxmox、Kubernetes 或自研 Python 工具时，直接照着文档跑起来。",
-      cta: "打开只读演示",
+      lead: "六大官方工作区、模拟 LXC 终端与实时 Pod 日志全都能在浏览器里直接交互体验；准备接入真实集群时，直接照着文档跑起来。",
+      cta: "打开在线体验",
     },
     footer: {
       docs: "在线文档",

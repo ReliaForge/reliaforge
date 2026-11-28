@@ -1,18 +1,21 @@
-import { ArrowUpRight } from "lucide-react"
+import { ArrowUpRight, Moon, Sun } from "lucide-react"
 import { useEffect, useState } from "react"
 import { CodeWorkbench, DeployWorkbench } from "./components/CodeWorkbench"
 import { ConsoleWorkbench } from "./components/ConsoleWorkbench"
+import { HeroMeshCanvas } from "./components/HeroMeshCanvas"
+import { Reveal } from "./components/Reveal"
 import { SafetyFlowVisualizer } from "./components/SafetyFlowVisualizer"
-import { COPY, type Locale, type WorkspaceViewId } from "./data/content"
+import { COPY, type Locale, type ThemeMode, type WorkspaceViewId } from "./data/content"
 
-const STORAGE_KEY = "rf.web.locale"
+const LOCALE_STORAGE_KEY = "rf.web.locale"
+const THEME_STORAGE_KEY = "rf.web.theme"
 
 function detectInitialLocale(): Locale {
   if (typeof window === "undefined") return "en"
   const param = new URLSearchParams(window.location.search).get("lang")
   if (param === "zh" || param === "en") return param
   try {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
+    const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY)
     if (stored === "zh" || stored === "en") return stored
   } catch {
     // ignore restricted storage
@@ -21,8 +24,25 @@ function detectInitialLocale(): Locale {
   return /^zh/i.test(primary) ? "zh" : "en"
 }
 
+function detectInitialTheme(): ThemeMode {
+  if (typeof window === "undefined") return "dark"
+  const param = new URLSearchParams(window.location.search).get("theme")
+  if (param === "light" || param === "dark") return param
+  if (document.documentElement.classList.contains("dark")) return "dark"
+  try {
+    const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
+    if (stored === "light" || stored === "dark") return stored
+  } catch {
+    // ignore restricted storage
+  }
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light"
+}
+
 export function App() {
   const [locale, setLocale] = useState<Locale>(() => detectInitialLocale())
+  const [theme, setTheme] = useState<ThemeMode>(() => detectInitialTheme())
   const [activeView, setActiveView] = useState<WorkspaceViewId>("overview")
   const [scrolled, setScrolled] = useState(false)
 
@@ -31,11 +51,22 @@ export function App() {
   useEffect(() => {
     document.documentElement.lang = locale === "zh" ? "zh-CN" : "en-US"
     try {
-      window.localStorage.setItem(STORAGE_KEY, locale)
+      window.localStorage.setItem(LOCALE_STORAGE_KEY, locale)
     } catch {
       // ignore restricted storage
     }
   }, [locale])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark")
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (meta) meta.setAttribute("content", theme === "dark" ? "#090b0f" : "#f6f8fb")
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, theme)
+    } catch {
+      // ignore restricted storage
+    }
+  }, [theme])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 18)
@@ -55,7 +86,7 @@ export function App() {
       <header
         className={`sticky top-0 z-40 transition-colors duration-200 ease-out ${
           scrolled
-            ? "border-b border-hairline bg-obsidian/90 backdrop-blur-md"
+            ? "border-b border-hairline bg-obsidian/88 backdrop-blur-md"
             : "border-b border-transparent bg-transparent"
         }`}
       >
@@ -69,7 +100,7 @@ export function App() {
               alt=""
               width={26}
               height={26}
-              className="h-[26px] w-[26px] object-contain brightness-0 invert"
+              className="h-[26px] w-[26px] object-contain brightness-0 dark:invert"
             />
             <span>ReliaForge</span>
           </a>
@@ -117,44 +148,62 @@ export function App() {
             </a>
           </nav>
 
-          <div
-            role="radiogroup"
-            aria-label="Language"
-            className="inline-flex items-center rounded-[7px] border border-hairline bg-panel p-0.5"
-          >
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              role="radio"
-              aria-checked={locale === "en"}
-              onClick={() => setLocale("en")}
-              className={`rounded-[5px] px-2.5 py-1 text-[13px] font-medium transition-colors duration-200 ease-out ${
-                locale === "en" ? "bg-surface text-ink" : "text-muted hover:text-ink"
-              }`}
+              data-testid="theme-toggle"
+              aria-label={theme === "dark" ? t.nav.switchToLight : t.nav.switchToDark}
+              onClick={() => setTheme((prev) => (prev === "dark" ? "light" : "dark"))}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-[7px] border border-hairline bg-panel text-muted transition-colors duration-200 ease-out hover:border-hairline-strong hover:text-ink"
             >
-              EN
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4 transition-transform duration-300 ease-out" aria-hidden="true" />
+              ) : (
+                <Moon className="h-4 w-4 transition-transform duration-300 ease-out" aria-hidden="true" />
+              )}
             </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={locale === "zh"}
-              onClick={() => setLocale("zh")}
-              className={`rounded-[5px] px-2.5 py-1 text-[13px] font-medium transition-colors duration-200 ease-out ${
-                locale === "zh" ? "bg-surface text-ink" : "text-muted hover:text-ink"
-              }`}
+
+            <div
+              role="radiogroup"
+              aria-label="Language"
+              className="inline-flex items-center rounded-[7px] border border-hairline bg-panel p-0.5"
             >
-              中文
-            </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={locale === "en"}
+                onClick={() => setLocale("en")}
+                className={`rounded-[5px] px-2.5 py-1 text-[13px] font-medium transition-colors duration-200 ease-out ${
+                  locale === "en" ? "bg-surface text-ink" : "text-muted hover:text-ink"
+                }`}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={locale === "zh"}
+                onClick={() => setLocale("zh")}
+                className={`rounded-[5px] px-2.5 py-1 text-[13px] font-medium transition-colors duration-200 ease-out ${
+                  locale === "zh" ? "bg-surface text-ink" : "text-muted hover:text-ink"
+                }`}
+              >
+                中文
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       <main>
-        {/* Monumental Hero + Interactive 5-Workspace Console Stage */}
-        <section className="hero-blueprint -mt-16 border-b border-hairline pt-24 pb-16 sm:pt-28 sm:pb-24">
-          <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
+        {/* Monumental Hero + Interactive Infrastructure Mesh + 5-Workspace Console Stage */}
+        <section className="hero-blueprint relative -mt-16 overflow-x-clip border-b border-hairline pt-24 pb-16 sm:pt-28 sm:pb-24">
+          <HeroMeshCanvas theme={theme} />
+
+          <div className="relative z-10 mx-auto max-w-[1280px] px-5 sm:px-8">
             <div className="mx-auto max-w-[980px] text-center">
               <h1
-                className={`m-0 font-bold text-ink [text-wrap:balance] ${
+                className={`hero-stagger-1 m-0 font-bold text-ink [text-wrap:balance] ${
                   locale === "zh"
                     ? "text-[clamp(2rem,4.1vw,3.5rem)] leading-[1.15] tracking-[-0.03em]"
                     : "text-[clamp(2.25rem,4.9vw,4.1rem)] leading-[1.05] tracking-[-0.04em]"
@@ -163,34 +212,38 @@ export function App() {
                 {t.hero.title}
               </h1>
 
-              <p className="mx-auto mt-5 max-w-[650px] text-[16px] leading-[1.7] text-muted">
+              <p className="hero-stagger-2 mx-auto mt-5 max-w-[650px] text-[16px] leading-[1.7] text-muted">
                 {t.hero.tagline}
               </p>
 
-              <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+              <div className="hero-stagger-3 mt-7 flex flex-wrap items-center justify-center gap-3">
                 <a
                   href={t.nav.demoUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-11 items-center justify-center rounded-[7px] bg-signal px-6 text-[14px] font-semibold text-[#04150e] transition-colors duration-200 ease-out hover:bg-signal-hover"
+                  className="cta-primary inline-flex h-11 items-center justify-center rounded-[7px] bg-signal px-6 text-[14px] font-semibold text-signal-ink hover:bg-signal-hover"
                 >
                   {t.hero.primaryCta}
                 </a>
                 <a
                   href={t.nav.docsUrl}
-                  className="inline-flex h-11 items-center justify-center gap-1.5 rounded-[7px] border border-hairline-strong bg-panel px-6 text-[14px] font-medium text-ink transition-colors duration-200 ease-out hover:border-muted hover:bg-surface"
+                  className="group inline-flex h-11 items-center justify-center gap-1.5 rounded-[7px] border border-hairline-strong bg-panel px-6 text-[14px] font-medium text-ink transition-colors duration-200 ease-out hover:border-muted hover:bg-surface"
                 >
                   {t.hero.secondaryCta}
-                  <ArrowUpRight className="h-4 w-4 text-muted" aria-hidden="true" />
+                  <ArrowUpRight
+                    className="h-4 w-4 text-muted transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    aria-hidden="true"
+                  />
                 </a>
               </div>
             </div>
 
-            <div className="mt-11 sm:mt-14">
+            <div className="hero-stagger-4 mt-11 sm:mt-14">
               <ConsoleWorkbench
                 views={t.workspaces}
                 activeId={activeView}
                 onSelect={setActiveView}
+                theme={theme}
                 demoUrl={t.nav.demoUrl}
                 openDemoHint={t.hero.openDemoHint}
               />
@@ -201,7 +254,7 @@ export function App() {
         {/* Section 1: 2 a.m. Ops Story + Interactive Request-to-Audit Visualizer */}
         <section className="border-b border-hairline py-20 sm:py-24">
           <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-16">
-            <div>
+            <Reveal>
               <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
                 {t.opsStory.heading}
               </h2>
@@ -219,70 +272,88 @@ export function App() {
                   </div>
                 ))}
               </div>
-            </div>
+            </Reveal>
 
-            <SafetyFlowVisualizer scenarios={t.opsStory.scenarios} />
+            <Reveal delayMs={90}>
+              <SafetyFlowVisualizer
+                scenarios={t.opsStory.scenarios}
+                replayLabel={t.opsStory.replayTrace}
+              />
+            </Reveal>
           </div>
         </section>
 
         {/* Section 2: Official 6-Plugin Hairline Suite Matrix */}
         <section id="plugins" className="scroll-mt-20 border-b border-hairline py-20 sm:py-24">
           <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <div className="max-w-[680px]">
-                <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
-                  {t.suite.heading}
-                </h2>
-                <p className="mt-4 text-[15px] leading-[1.7] text-muted">{t.suite.lead}</p>
-              </div>
-              <a
-                href="https://github.com/ReliaForge/reliaforge-plugins"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-[15px] font-medium text-ink underline decoration-signal decoration-1 underline-offset-4 transition-colors duration-200 ease-out hover:text-signal"
-              >
-                {t.suite.repoLabel}
-                <ArrowUpRight className="h-4 w-4 text-signal" aria-hidden="true" />
-              </a>
-            </div>
-
-            <div className="mt-10 grid border-t border-l border-hairline sm:grid-cols-2 lg:grid-cols-3">
-              {t.suite.plugins.map((plugin) => (
-                <div
-                  key={plugin.id}
-                  className="flex flex-col justify-between border-r border-b border-hairline bg-obsidian p-6 transition-colors duration-200 ease-out hover:bg-panel"
-                >
-                  <div>
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="text-[15px] font-semibold leading-[1.4] text-ink">
-                        {plugin.title}
-                      </span>
-                      <span className="font-mono text-[13px] text-subtle">{plugin.id}</span>
-                    </div>
-                    <p className="mt-3 text-[15px] leading-[1.7] text-muted">{plugin.summary}</p>
-                  </div>
-
-                  {plugin.viewId ? (
-                    <div className="mt-5">
-                      <button
-                        type="button"
-                        onClick={() => jumpToWorkspace(plugin.viewId!)}
-                        className="text-[13px] font-medium text-signal transition-colors duration-200 ease-out hover:text-signal-hover"
-                      >
-                        {t.suite.inspectView} ↑
-                      </button>
-                    </div>
-                  ) : null}
+            <Reveal>
+              <div className="flex flex-wrap items-end justify-between gap-6">
+                <div className="max-w-[680px]">
+                  <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
+                    {t.suite.heading}
+                  </h2>
+                  <p className="mt-4 text-[15px] leading-[1.7] text-muted">{t.suite.lead}</p>
                 </div>
-              ))}
-            </div>
+                <a
+                  href="https://github.com/ReliaForge/reliaforge-plugins"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group inline-flex items-center gap-1.5 text-[15px] font-medium text-ink underline decoration-signal decoration-1 underline-offset-4 transition-colors duration-200 ease-out hover:text-signal"
+                >
+                  {t.suite.repoLabel}
+                  <ArrowUpRight
+                    className="h-4 w-4 text-signal transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    aria-hidden="true"
+                  />
+                </a>
+              </div>
+            </Reveal>
+
+            <Reveal delayMs={80}>
+              <div className="mt-10 grid border-t border-l border-hairline sm:grid-cols-2 lg:grid-cols-3">
+                {t.suite.plugins.map((plugin) => (
+                  <div
+                    key={plugin.id}
+                    className="plugin-tile group flex flex-col justify-between border-r border-b border-hairline bg-obsidian p-6 hover:bg-panel"
+                  >
+                    <div>
+                      <div className="flex items-baseline justify-between gap-3">
+                        <span className="text-[15px] font-semibold leading-[1.4] text-ink">
+                          {plugin.title}
+                        </span>
+                        <span className="font-mono text-[13px] text-subtle">{plugin.id}</span>
+                      </div>
+                      <p className="mt-3 text-[15px] leading-[1.7] text-muted">{plugin.summary}</p>
+                    </div>
+
+                    {plugin.viewId ? (
+                      <div className="mt-5">
+                        <button
+                          type="button"
+                          onClick={() => jumpToWorkspace(plugin.viewId!)}
+                          className="inline-flex items-center gap-1 text-[13px] font-medium text-signal transition-colors duration-200 ease-out hover:text-signal-hover"
+                        >
+                          <span>{t.suite.inspectView}</span>
+                          <span
+                            aria-hidden="true"
+                            className="inline-block transition-transform duration-200 ease-out group-hover:-translate-y-0.5"
+                          >
+                            ↑
+                          </span>
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </Reveal>
           </div>
         </section>
 
         {/* Section 3: Bring Your Own Python Tool */}
         <section id="build" className="scroll-mt-20 border-b border-hairline py-20 sm:py-24">
           <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-16">
-            <div>
+            <Reveal>
               <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
                 {t.byo.heading}
               </h2>
@@ -304,26 +375,31 @@ export function App() {
               <div className="mt-6">
                 <a
                   href={`${t.nav.docsUrl}guide/plugin-development.html`}
-                  className="inline-flex items-center gap-1.5 text-[15px] font-medium text-ink underline decoration-signal decoration-1 underline-offset-4 transition-colors duration-200 ease-out hover:text-signal"
+                  className="group inline-flex items-center gap-1.5 text-[15px] font-medium text-ink underline decoration-signal decoration-1 underline-offset-4 transition-colors duration-200 ease-out hover:text-signal"
                 >
                   {t.byo.docsCta}
-                  <ArrowUpRight className="h-4 w-4 text-signal" aria-hidden="true" />
+                  <ArrowUpRight
+                    className="h-4 w-4 text-signal transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    aria-hidden="true"
+                  />
                 </a>
               </div>
-            </div>
+            </Reveal>
 
-            <CodeWorkbench
-              tabs={t.byo.tabs}
-              copyLabel={t.copyButton.copy}
-              copiedLabel={t.copyButton.copied}
-            />
+            <Reveal delayMs={90}>
+              <CodeWorkbench
+                tabs={t.byo.tabs}
+                copyLabel={t.copyButton.copy}
+                copiedLabel={t.copyButton.copied}
+              />
+            </Reveal>
           </div>
         </section>
 
         {/* Section 4: Single-Container Deployment */}
         <section id="deploy" className="scroll-mt-20 border-b border-hairline py-20 sm:py-24">
           <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-16">
-            <div>
+            <Reveal>
               <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
                 {t.deploy.heading}
               </h2>
@@ -341,34 +417,38 @@ export function App() {
                   </div>
                 ))}
               </div>
-            </div>
+            </Reveal>
 
-            <DeployWorkbench
-              tabs={t.deploy.tabs}
-              copyLabel={t.copyButton.copy}
-              copiedLabel={t.copyButton.copied}
-            />
+            <Reveal delayMs={90}>
+              <DeployWorkbench
+                tabs={t.deploy.tabs}
+                copyLabel={t.copyButton.copy}
+                copiedLabel={t.copyButton.copied}
+              />
+            </Reveal>
           </div>
         </section>
 
         {/* Closing Action Stage */}
         <section className="py-20 sm:py-24">
-          <div className="mx-auto flex max-w-[1280px] flex-col items-start justify-between gap-8 px-5 sm:px-8 md:flex-row md:items-center">
-            <div className="max-w-[640px]">
-              <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
-                {t.closing.heading}
-              </h2>
-              <p className="mt-4 text-[15px] leading-[1.7] text-muted">{t.closing.lead}</p>
+          <Reveal>
+            <div className="mx-auto flex max-w-[1280px] flex-col items-start justify-between gap-8 px-5 sm:px-8 md:flex-row md:items-center">
+              <div className="max-w-[640px]">
+                <h2 className="m-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.14] tracking-[-0.035em] text-ink [text-wrap:balance]">
+                  {t.closing.heading}
+                </h2>
+                <p className="mt-4 text-[15px] leading-[1.7] text-muted">{t.closing.lead}</p>
+              </div>
+              <a
+                href={t.nav.demoUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="cta-primary inline-flex h-11 shrink-0 items-center justify-center rounded-[7px] bg-signal px-6 text-[15px] font-semibold text-signal-ink hover:bg-signal-hover"
+              >
+                {t.closing.cta}
+              </a>
             </div>
-            <a
-              href={t.nav.demoUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-11 shrink-0 items-center justify-center rounded-[7px] bg-signal px-6 text-[15px] font-semibold text-[#04150e] transition-colors duration-200 ease-out hover:bg-signal-hover"
-            >
-              {t.closing.cta}
-            </a>
-          </div>
+          </Reveal>
         </section>
       </main>
 
